@@ -4,7 +4,6 @@
   Brain,
   CheckCircle2,
   GitBranch,
-  LayoutGrid,
   PenLine,
   Rocket,
   Sparkles,
@@ -121,37 +120,29 @@ const stackTags = [
 ];
 
 export default function Home() {
+  const scrollToId = (id: string) => () => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <div className="bg-background text-foreground">
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-hero" />
         <div className="absolute inset-0 bg-grid opacity-60" />
-
-        <header className="relative mx-auto max-w-6xl px-6 pt-8">
-          <div className="flex flex-wrap items-center justify-between gap-6">
-            <div className="flex items-center gap-3">
-              <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-sm">
-                <LayoutGrid className="size-5" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold tracking-[0.2em] text-muted-foreground">
-                  HONGMENG CHEN
-                </p>
-                <p className="text-lg font-semibold">秩序创造自由</p>
-              </div>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="secondary">个人主页</Badge>
-              <Badge variant="soft">内容工程</Badge>
-              <Badge variant="soft">开源协作</Badge>
-            </div>
-          </div>
-        </header>
 
         <section className="relative mx-auto max-w-6xl px-6 pb-20 pt-12 lg:pt-16">
           <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
             <div className="space-y-8">
               <div className="space-y-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant="secondary">个人主页</Badge>
+                  <Badge variant="outline">内容工程</Badge>
+                  <Badge variant="outline">开源协作</Badge>
+                </div>
+
                 <p className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground">
                   <Sparkles className="size-4 text-primary" />
                   以工程化思维管理内容与协作
@@ -167,11 +158,9 @@ export default function Home() {
               </div>
 
               <div className="flex flex-wrap gap-3">
-                <Button size="lg" asChild>
-                  <a href="#features">
-                    浏览特性
-                    <ArrowUpRight className="ml-1 size-4" />
-                  </a>
+                <Button size="lg" onClick={scrollToId("features")}>
+                  浏览特性
+                  <ArrowUpRight className="ml-1 size-4" />
                 </Button>
                 <Button size="lg" variant="outline" asChild>
                   <a
@@ -256,7 +245,10 @@ export default function Home() {
         </section>
       </div>
 
-      <section id="features" className="mx-auto max-w-6xl px-6 py-16">
+      <section
+        id="features"
+        className="mx-auto max-w-6xl scroll-mt-24 px-6 py-16"
+      >
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-3">
             <Badge variant="secondary">Homepage Features</Badge>
@@ -268,11 +260,9 @@ export default function Home() {
               每个模块都是可复用的产品化能力，而不只是一次性页面。
             </p>
           </div>
-          <Button variant="ghost" asChild>
-            <a href="#workflow" className="flex items-center gap-2">
-              查看路线
-              <ArrowUpRight className="size-4" />
-            </a>
+          <Button variant="ghost" onClick={scrollToId("workflow")}>
+            查看路线
+            <ArrowUpRight className="ml-2 size-4" />
           </Button>
         </div>
 
@@ -286,7 +276,7 @@ export default function Home() {
               >
                 <CardHeader className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <Badge variant="soft">{feature.label}</Badge>
+                    <Badge variant="outline">{feature.label}</Badge>
                     <span className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary">
                       <Icon className="size-5" />
                     </span>
@@ -302,7 +292,10 @@ export default function Home() {
 
       <Separator className="mx-auto max-w-6xl" />
 
-      <section id="system" className="mx-auto max-w-6xl px-6 py-16">
+      <section
+        id="system"
+        className="mx-auto max-w-6xl scroll-mt-24 px-6 py-16"
+      >
         <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr]">
           <div className="space-y-6">
             <Badge variant="secondary">Design System</Badge>
@@ -360,8 +353,8 @@ export default function Home() {
                 ))}
               </CardContent>
               <CardFooter>
-                <Button variant="outline" asChild>
-                  <a href="#about">查看项目说明</a>
+                <Button variant="outline" onClick={scrollToId("about")}>
+                  查看项目说明
                 </Button>
               </CardFooter>
             </Card>
@@ -375,7 +368,7 @@ export default function Home() {
               </CardHeader>
               <CardContent className="flex flex-wrap gap-2">
                 {stackTags.map((tag) => (
-                  <Badge key={tag} variant="soft">
+                  <Badge key={tag} variant="outline">
                     {tag}
                   </Badge>
                 ))}
@@ -385,7 +378,10 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="workflow" className="mx-auto max-w-6xl px-6 pb-20">
+      <section
+        id="workflow"
+        className="mx-auto max-w-6xl scroll-mt-24 px-6 pb-20"
+      >
         <Card className="bg-primary/10">
           <CardHeader>
             <CardTitle className="font-display text-2xl">
@@ -411,7 +407,10 @@ export default function Home() {
         </Card>
       </section>
 
-      <footer id="about" className="mx-auto max-w-6xl px-6 pb-12">
+      <footer
+        id="about"
+        className="mx-auto max-w-6xl scroll-mt-24 px-6 pb-12"
+      >
         <div className="flex flex-col gap-4 rounded-2xl border border-border/60 bg-card/60 p-6 text-sm text-muted-foreground">
           <p>
             这是一个基于 Vite + React + TypeScript 的静态站点示例，主题与样式使用
@@ -422,6 +421,6 @@ export default function Home() {
           </p>
         </div>
       </footer>
-    </main>
+    </div>
   );
 }
