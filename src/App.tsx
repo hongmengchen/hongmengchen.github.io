@@ -1,7 +1,8 @@
 import "./App.css";
+import Home from "./pages/home";
 
 function App() {
-  return <>鸿蒙初开</>;
+  return <Home />;
 }
 
 export default App;
