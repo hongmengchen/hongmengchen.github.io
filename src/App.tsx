@@ -1,14 +1,14 @@
-import { Suspense, lazy } from "react";
+﻿import { Suspense, lazy, useEffect, useMemo } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import Home from "@/pages/home";
 import SiteLayout from "@/layouts/site-layout";
+import { applySiteTheme, getSiteConfig } from "@/lib/insight";
 
-const Content = lazy(() => import("@/pages/content"));
-const Cases = lazy(() => import("@/pages/cases"));
-const Resources = lazy(() => import("@/pages/resources"));
 const BlogIndex = lazy(() => import("@/pages/blog-index"));
 const BlogPost = lazy(() => import("@/pages/blog-post"));
+const InsightIndex = lazy(() => import("@/pages/insight-index"));
+const InsightPost = lazy(() => import("@/pages/insight-post"));
 
 const withSuspense = (node: React.ReactNode) => (
   <Suspense
@@ -23,14 +23,19 @@ const withSuspense = (node: React.ReactNode) => (
 );
 
 function App() {
+  const siteConfig = useMemo(() => getSiteConfig(), []);
+
+  useEffect(() => {
+    applySiteTheme(siteConfig);
+  }, [siteConfig]);
+
   const router = createBrowserRouter([
     { path: "/", element: <Home /> },
     {
       element: <SiteLayout />,
       children: [
-        { path: "/content", element: withSuspense(<Content />) },
-        { path: "/cases", element: withSuspense(<Cases />) },
-        { path: "/resources", element: withSuspense(<Resources />) },
+        { path: "/insights", element: withSuspense(<InsightIndex />) },
+        { path: "/insights/:slug", element: withSuspense(<InsightPost />) },
         { path: "/blog", element: withSuspense(<BlogIndex />) },
         { path: "/blog/:slug", element: withSuspense(<BlogPost />) },
       ],

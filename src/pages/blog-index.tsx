@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+﻿import { Link } from "react-router-dom";
 import { ArrowUpRight, Clock, Hash, Layers } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -26,7 +26,9 @@ export default function BlogIndex() {
             <CardHeader className="space-y-3">
               <div className="flex items-center gap-3 text-xs text-muted-foreground">
                 <Clock className="size-3.5" />
-                <span>{post.meta.updated || post.meta.created || "未设置"}</span>
+                <span>
+                  {post.meta.updated || post.meta.created || "未设置"}
+                </span>
               </div>
               <CardTitle className="text-xl">
                 <Link

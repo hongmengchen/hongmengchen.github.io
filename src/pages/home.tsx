@@ -9,10 +9,23 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { getSiteConfig } from "@/lib/insight";
 
-const focusTags = ["内容工程", "开源协作", "长期主义"];
+const defaultTitle = "秩序创造自由";
+const defaultHighlight = "自由";
 
 export default function Home() {
+  const siteConfig = getSiteConfig();
+  const hero = siteConfig.hero ?? {};
+  const focusTags = siteConfig.focusTags ?? ["内容工程", "开源协作", "长期主义"];
+  const statements = siteConfig.statements ?? {};
+
+  const heroTitle = hero.title ?? defaultTitle;
+  const heroHighlight = hero.highlight ?? defaultHighlight;
+  const titleSegments = heroHighlight && heroTitle.includes(heroHighlight)
+    ? heroTitle.split(heroHighlight)
+    : null;
+
   return (
     <main className="min-h-screen">
       <div className="relative overflow-hidden">
@@ -22,10 +35,10 @@ export default function Home() {
           <header className="flex items-center justify-between text-sm">
             <div>
               <p className="text-xs font-semibold tracking-[0.2em] text-muted-foreground">
-                HONGMENG CHEN
+                {hero.eyebrow ?? "HONGMENG CHEN"}
               </p>
               <p className="text-sm font-medium text-muted-foreground">
-                内容与协作的长期实践
+                {hero.tagline ?? "内容与协作的长期实践"}
               </p>
             </div>
             <Button size="sm" variant="outline" asChild>
@@ -44,13 +57,21 @@ export default function Home() {
             <div className="h-px w-12 bg-primary/60" />
             <div className="space-y-3">
               <h1 className="font-display text-4xl font-semibold leading-tight tracking-tight md:text-5xl">
-                秩序创造<span className="text-primary">自由</span>
+                {titleSegments ? (
+                  <>
+                    {titleSegments[0]}
+                    <span className="text-primary">{heroHighlight}</span>
+                    {titleSegments.slice(1).join(heroHighlight)}
+                  </>
+                ) : (
+                  heroTitle
+                )}
               </h1>
               <p className="font-display text-2xl font-semibold tracking-tight text-foreground/80 md:text-3xl">
-                开源创造未来
+                {hero.subtitle ?? "开源创造未来"}
               </p>
               <p className="text-base text-muted-foreground md:text-lg">
-                前者是我对社会的认知，后者是我对未来的畅想。
+                {hero.description ?? "前者是我对社会的认知，后者是我对未来的畅想。"}
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -62,10 +83,10 @@ export default function Home() {
             </div>
             <div className="flex flex-wrap gap-3">
               <Button asChild>
-                <Link to="/blog">阅读技术博客</Link>
+                <Link to="/insights">阅读顿悟系统</Link>
               </Button>
               <Button variant="outline" asChild>
-                <Link to="/content">查看内容体系</Link>
+                <Link to="/blog">阅读技术博客</Link>
               </Button>
             </div>
           </div>
@@ -73,20 +94,24 @@ export default function Home() {
           <div className="grid gap-4 md:grid-cols-2">
             <Card size="sm" className="bg-card/70 shadow-soft">
               <CardHeader>
-                <CardTitle>信条</CardTitle>
-                <CardDescription>秩序创造自由。</CardDescription>
+                <CardTitle>{statements.credo?.title ?? "信条"}</CardTitle>
+                <CardDescription>
+                  {statements.credo?.tagline ?? "秩序创造自由。"}
+                </CardDescription>
               </CardHeader>
               <CardContent className="text-sm text-muted-foreground">
-                用结构化与节奏，降低混乱成本，释放创造力。
+                {statements.credo?.body ?? "用结构化与节奏，降低混乱成本，释放创造力。"}
               </CardContent>
             </Card>
             <Card size="sm" className="bg-card/70 shadow-soft">
               <CardHeader>
-                <CardTitle>目标</CardTitle>
-                <CardDescription>开源创造未来。</CardDescription>
+                <CardTitle>{statements.goal?.title ?? "目标"}</CardTitle>
+                <CardDescription>
+                  {statements.goal?.tagline ?? "开源创造未来。"}
+                </CardDescription>
               </CardHeader>
               <CardContent className="text-sm text-muted-foreground">
-                以开放协作沉淀方法与工具，形成长期资产。
+                {statements.goal?.body ?? "以开放协作沉淀方法与工具，形成长期资产。"}
               </CardContent>
             </Card>
           </div>

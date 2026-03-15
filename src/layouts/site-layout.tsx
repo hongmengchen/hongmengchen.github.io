@@ -4,13 +4,12 @@ import { NavLink, Outlet } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { getSiteConfig } from "@/lib/insight";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { label: "首页", to: "/" },
-  { label: "内容", to: "/content" },
-  { label: "案例", to: "/cases" },
-  { label: "资源", to: "/resources" },
+  { label: "顿悟", to: "/insights" },
   { label: "博客", to: "/blog" },
 ];
 
@@ -31,6 +30,11 @@ const navPillClass = ({ isActive }: { isActive: boolean }) =>
   );
 
 export default function SiteLayout() {
+  const siteConfig = getSiteConfig();
+  const eyebrow = siteConfig.hero?.eyebrow ?? "HONGMENG CHEN";
+  const title = siteConfig.hero?.title ?? "秩序创造自由";
+  const navBadges = siteConfig.badges?.nav ?? ["长期主义", "内容工程"];
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur">
@@ -41,9 +45,9 @@ export default function SiteLayout() {
             </span>
             <span>
               <span className="block text-xs font-semibold tracking-[0.2em] text-muted-foreground">
-                HONGMENG CHEN
+                {eyebrow}
               </span>
-              <span className="block text-sm font-semibold">秩序创造自由</span>
+              <span className="block text-sm font-semibold">{title}</span>
             </span>
           </NavLink>
 
@@ -61,12 +65,17 @@ export default function SiteLayout() {
           </nav>
 
           <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="hidden sm:inline-flex">
-              长期主义
-            </Badge>
-            <Badge variant="outline" className="hidden md:inline-flex">
-              内容工程
-            </Badge>
+            {navBadges.map((badge, index) => (
+              <Badge
+                key={`${badge}-${index}`}
+                variant={index === 0 ? "secondary" : "outline"}
+                className={
+                  index === 0 ? "hidden sm:inline-flex" : "hidden md:inline-flex"
+                }
+              >
+                {badge}
+              </Badge>
+            ))}
             <Button size="sm" variant="outline" asChild>
               <a
                 href="https://github.com/hongmengchen/hongmengchen.github.io"
