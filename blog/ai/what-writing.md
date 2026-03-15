@@ -1,3 +1,14 @@
+---
+title: "我到底在“写”什么？"
+slug: "what-writing"
+summary: "探讨在AI时代，我们到底在“写”什么"
+created: "2026-03-15"
+updated: "2026-03-16"
+categories: ["AI"]
+tags: ["结构化", "复用"]
+draft: false
+---
+
 # 我到底在“写”什么？
 
 ## 一、现象：能力没有显著提升，但产出显著提升

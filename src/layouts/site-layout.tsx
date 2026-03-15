@@ -11,6 +11,7 @@ const navItems = [
   { label: "内容", to: "/content" },
   { label: "案例", to: "/cases" },
   { label: "资源", to: "/resources" },
+  { label: "博客", to: "/blog" },
 ];
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
