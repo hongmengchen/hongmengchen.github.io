@@ -1,10 +1,11 @@
 ﻿import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Clock, Hash, Layers, Sparkles } from "lucide-react";
+import { ArrowLeft, Clock, Hash, Layers, Sparkles, Waypoints } from "lucide-react";
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import MarkdownRenderer from "@/components/markdown/markdown-renderer";
 import { getInsightBySlug } from "@/lib/insight";
 
@@ -28,6 +29,25 @@ const panelVariants: Variants = {
     transition: { duration: 0.5, ease: easeOutCubic },
   },
 };
+
+const timelineSteps = [
+  {
+    title: "观察",
+    description: "记录触发认知变化的事实、现场与背景。",
+  },
+  {
+    title: "结论",
+    description: "提炼核心判断，明确你相信它成立的原因。",
+  },
+  {
+    title: "影响范围",
+    description: "把变化映射到站点结构、主题或架构调整。",
+  },
+  {
+    title: "行动",
+    description: "拆解为下一步可执行的页面或系统动作。",
+  },
+];
 
 export default function InsightPost() {
   const { slug } = useParams();
@@ -102,6 +122,36 @@ export default function InsightPost() {
           </div>
         </div>
       </motion.div>
+
+      <div className="mt-8">
+        <Card className="insight-card">
+          <CardHeader>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Waypoints className="size-4 text-primary" />
+              进化路径
+            </div>
+            <CardTitle className="text-base">顿悟落地步骤</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 text-sm">
+            {timelineSteps.map((step, index) => (
+              <div key={step.title} className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <Badge variant="outline" className="mt-0.5 rounded-full">
+                    {index + 1}
+                  </Badge>
+                  <div>
+                    <p className="font-semibold text-foreground">{step.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {step.description}
+                    </p>
+                  </div>
+                </div>
+                {index !== timelineSteps.length - 1 ? <Separator /> : null}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
 
       <motion.div
         className="mt-10 grid gap-8 lg:grid-cols-[1.3fr_0.7fr]"

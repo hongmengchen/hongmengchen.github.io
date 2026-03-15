@@ -1,15 +1,17 @@
-﻿import { Link } from "react-router-dom";
+﻿import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { ArrowUpRight, Clock, Hash, Layers, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
+import { WordCloud, type Word } from "@isoterik/react-word-cloud";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { getAllInsights } from "@/lib/insight";
 
 const insights = getAllInsights();
-
-const easeOutCubic = [0.22, 0.61, 0.36, 1] as const;
 
 const heroVariants: Variants = {
   hidden: { opacity: 0, y: 18 },
@@ -21,6 +23,8 @@ const listVariants: Variants = {
   show: { transition: { staggerChildren: 0.08 } },
 };
 
+const easeOutCubic = [0.22, 0.61, 0.36, 1] as const;
+
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 16 },
   show: {
@@ -30,7 +34,34 @@ const itemVariants: Variants = {
   },
 };
 
+const cloudFont = "Space Grotesk, Geist Variable, sans-serif";
+
 export default function InsightIndex() {
+  const [selectedImpact, setSelectedImpact] = useState<string | null>(null);
+
+  const { impacts, words, maxValue } = useMemo(() => {
+    const counts = new Map<string, number>();
+    insights.forEach((insight) => {
+      (insight.meta.impact ?? []).forEach((impact) => {
+        counts.set(impact, (counts.get(impact) ?? 0) + 1);
+      });
+    });
+
+    const sorted = Array.from(counts.entries()).sort((a, b) => b[1] - a[1]);
+    return {
+      impacts: sorted,
+      words: sorted.map(([text, value]) => ({ text, value })) as Word[],
+      maxValue: sorted.reduce((acc, [, value]) => Math.max(acc, value), 1),
+    };
+  }, []);
+
+  const filteredInsights = useMemo(() => {
+    if (!selectedImpact) return insights;
+    return insights.filter((insight) =>
+      (insight.meta.impact ?? []).includes(selectedImpact),
+    );
+  }, [selectedImpact]);
+
   return (
     <section className="insight-shell mx-auto max-w-6xl px-6 py-12">
       <motion.div
@@ -64,9 +95,115 @@ export default function InsightIndex() {
         </div>
       </motion.div>
 
-      {insights.length === 0 ? (
+      <div className="mt-8 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+        <Card className="insight-card">
+          <CardHeader>
+            <CardTitle className="text-base">影响标签云</CardTitle>
+            <p className="text-xs text-muted-foreground">
+              点击标签直接筛选顿悟列表。
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {words.length === 0 ? (
+              <div className="text-sm text-muted-foreground">
+                暂无 impact 标签可视化。
+              </div>
+            ) : (
+              <div className="w-full">
+                <WordCloud
+                  words={words}
+                  width={520}
+                  height={240}
+                  enableTooltip
+                  font={cloudFont}
+                  fontSize={(word) => 14 + (word.value / maxValue) * 22}
+                  padding={2}
+                  spiral="rectangular"
+                  rotate={() => 0}
+                  onWordClick={(word) => {
+                    setSelectedImpact(word.text);
+                  }}
+                  renderWord={(data, ref) => (
+                    <text
+                      ref={ref}
+                      style={{
+                        fontFamily: data.font,
+                        fontSize: data.size,
+                        fontWeight: selectedImpact === data.text ? 700 : 500,
+                        fill:
+                          selectedImpact === data.text
+                            ? "var(--primary)"
+                            : "var(--foreground)",
+                        cursor: "pointer",
+                      }}
+                      transform={`translate(${data.x}, ${data.y}) rotate(${data.rotate})`}
+                      textAnchor="middle"
+                    >
+                      {data.text}
+                    </text>
+                  )}
+                />
+              </div>
+            )}
+            {selectedImpact ? (
+              <div className="flex items-center gap-2 text-xs">
+                <Badge variant="secondary">当前过滤</Badge>
+                <Badge variant="outline" className="insight-chip">
+                  {selectedImpact}
+                </Badge>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setSelectedImpact(null)}
+                >
+                  清除
+                </Button>
+              </div>
+            ) : null}
+          </CardContent>
+        </Card>
+
+        <Card className="insight-card">
+          <CardHeader>
+            <CardTitle className="text-base">影响范围筛选</CardTitle>
+            <p className="text-xs text-muted-foreground">
+              选择一个 impact 查看相关顿悟。
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                variant={!selectedImpact ? "secondary" : "outline"}
+                onClick={() => setSelectedImpact(null)}
+              >
+                全部
+              </Button>
+              {impacts.map(([impact, count]) => (
+                <Button
+                  key={impact}
+                  size="sm"
+                  variant={selectedImpact === impact ? "secondary" : "outline"}
+                  onClick={() => setSelectedImpact(impact)}
+                >
+                  {impact}
+                  <span className="ml-2 text-xs text-muted-foreground">
+                    {count}
+                  </span>
+                </Button>
+              ))}
+            </div>
+            <Separator />
+            <div className="text-xs text-muted-foreground">
+              当前显示 {filteredInsights.length} 条顿悟。
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {filteredInsights.length === 0 ? (
         <div className="mt-10 rounded-2xl border border-border/60 bg-card/70 p-8 text-sm text-muted-foreground">
-          暂无顿悟，先写下一条会改变你站点形态的认知。
+          暂无匹配的顿悟，试试清除过滤。
         </div>
       ) : (
         <motion.div
@@ -75,7 +212,7 @@ export default function InsightIndex() {
           initial="hidden"
           animate="show"
         >
-          {insights.map((insight) => (
+          {filteredInsights.map((insight) => (
             <motion.div key={insight.meta.slug} variants={itemVariants}>
               <Card className="insight-card">
                 <CardHeader className="space-y-3">
