@@ -17,9 +17,10 @@ export type BlogPost = {
   sourcePath: string;
 };
 
-const rawEntries = import.meta.glob<string>("/blog/**/*.md", {
-  as: "raw",
+const rawEntries = import.meta.glob<string>("../../blog/**/*.md", {
   eager: true,
+  query: "?raw",
+  import: "default",
 });
 
 const toArray = (value: unknown): string[] => {
