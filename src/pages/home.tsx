@@ -1,4 +1,6 @@
-﻿import { Badge } from "@/components/ui/badge";
+﻿import { Link } from "react-router-dom";
+
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -57,6 +59,14 @@ export default function Home() {
                   {tag}
                 </Badge>
               ))}
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Button asChild>
+                <Link to="/blog">阅读技术博客</Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link to="/content">查看内容体系</Link>
+              </Button>
             </div>
           </div>
 
