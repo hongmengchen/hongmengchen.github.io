@@ -11,7 +11,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
       rehypePlugins={[rehypeHighlight]}
-      className="prose prose-neutral max-w-none dark:prose-invert"
+      className="markdown max-w-none"
     >
       {content}
     </ReactMarkdown>
