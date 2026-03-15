@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Redirecting...</title>
+  </head>
+  <body>
+    <script>
+      (function () {
+        var redirect = sessionStorage.getItem("redirect");
+        var pathname = location.pathname + location.search + location.hash;
+        if (!redirect) {
+          sessionStorage.setItem("redirect", pathname);
+        }
+        location.replace("/");
+      })();
+    </script>
+  </body>
+</html>

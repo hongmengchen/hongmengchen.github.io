@@ -1,4 +1,4 @@
-import matter from "gray-matter";
+import { parse as parseYaml } from "yaml";
 
 export type BlogMeta = {
   title: string;
@@ -46,8 +46,18 @@ const extractSlug = (path: string, frontMatterSlug?: unknown) => {
   return withoutExt.replace(/\//g, "-");
 };
 
+const parseFrontMatter = (raw: string) => {
+  const match = raw.match(/^---\s*[\r\n]+([\s\S]*?)\r?\n---\s*[\r\n]+/);
+  if (!match) {
+    return { data: {}, content: raw };
+  }
+  const data = (parseYaml(match[1]) || {}) as Record<string, unknown>;
+  const content = raw.slice(match[0].length);
+  return { data, content };
+};
+
 const parsePost = (path: string, raw: string): BlogPost => {
-  const { data, content } = matter(raw);
+  const { data, content } = parseFrontMatter(raw);
   const meta: BlogMeta = {
     title: typeof data.title === "string" ? data.title : "未命名文档",
     slug: extractSlug(path, data.slug),
