@@ -1,10 +1,33 @@
 ﻿import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Clock, Hash, Layers, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
+import type { Variants } from "framer-motion";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import MarkdownRenderer from "@/components/markdown/markdown-renderer";
 import { getInsightBySlug } from "@/lib/insight";
+
+const easeOutCubic = [0.22, 0.61, 0.36, 1] as const;
+
+const heroVariants: Variants = {
+  hidden: { opacity: 0, y: 18 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+};
+
+const contentVariants: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.12 } },
+};
+
+const panelVariants: Variants = {
+  hidden: { opacity: 0, y: 14 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: easeOutCubic },
+  },
+};
 
 export default function InsightPost() {
   const { slug } = useParams();
@@ -31,7 +54,12 @@ export default function InsightPost() {
 
   return (
     <article className="insight-shell mx-auto max-w-6xl px-6 py-12">
-      <div className="insight-hero insight-hero--compact">
+      <motion.div
+        className="insight-hero insight-hero--compact"
+        variants={heroVariants}
+        initial="hidden"
+        animate="show"
+      >
         <div className="insight-hero__grid bg-grid" />
         <div className="insight-hero__glow" />
         <Link
@@ -73,52 +101,64 @@ export default function InsightPost() {
             ))}
           </div>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="mt-10 grid gap-8 lg:grid-cols-[1.3fr_0.7fr]">
-        <div className="rounded-2xl border border-border/60 bg-card/80 p-8 shadow-soft">
+      <motion.div
+        className="mt-10 grid gap-8 lg:grid-cols-[1.3fr_0.7fr]"
+        variants={contentVariants}
+        initial="hidden"
+        animate="show"
+      >
+        <motion.div
+          className="rounded-2xl border border-border/60 bg-card/80 p-8 shadow-soft"
+          variants={panelVariants}
+        >
           <MarkdownRenderer content={post.content} />
-        </div>
+        </motion.div>
         <aside className="space-y-4">
-          <Card className="insight-card">
-            <CardHeader>
-              <CardTitle className="text-base">进化影响范围</CardTitle>
-              <p className="text-xs text-muted-foreground">
-                这些标签指向本次顿悟会影响站点的哪些部分。
-              </p>
-            </CardHeader>
-            <CardContent className="flex flex-wrap gap-2 text-xs">
-              {(post.meta.impact ?? []).length > 0 ? (
-                (post.meta.impact ?? []).map((item) => (
-                  <Badge
-                    key={`impact-panel-${post.meta.slug}-${item}`}
-                    variant="outline"
-                    className="insight-chip insight-chip--impact"
-                  >
-                    <Sparkles className="size-3" />
-                    {item}
-                  </Badge>
-                ))
-              ) : (
-                <span className="text-xs text-muted-foreground">
-                  暂未标注影响范围。
-                </span>
-              )}
-            </CardContent>
-          </Card>
-          <Card className="insight-card">
-            <CardHeader>
-              <CardTitle className="text-base">行动提示</CardTitle>
-              <p className="text-xs text-muted-foreground">
-                将这条顿悟落实为页面、主题或架构的下一步动作。
-              </p>
-            </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
-              先明确优先级，再确定对首页、导航或视觉系统的具体改动。
-            </CardContent>
-          </Card>
+          <motion.div variants={panelVariants}>
+            <Card className="insight-card">
+              <CardHeader>
+                <CardTitle className="text-base">进化影响范围</CardTitle>
+                <p className="text-xs text-muted-foreground">
+                  这些标签指向本次顿悟会影响站点的哪些部分。
+                </p>
+              </CardHeader>
+              <CardContent className="flex flex-wrap gap-2 text-xs">
+                {(post.meta.impact ?? []).length > 0 ? (
+                  (post.meta.impact ?? []).map((item) => (
+                    <Badge
+                      key={`impact-panel-${post.meta.slug}-${item}`}
+                      variant="outline"
+                      className="insight-chip insight-chip--impact"
+                    >
+                      <Sparkles className="size-3" />
+                      {item}
+                    </Badge>
+                  ))
+                ) : (
+                  <span className="text-xs text-muted-foreground">
+                    暂未标注影响范围。
+                  </span>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
+          <motion.div variants={panelVariants}>
+            <Card className="insight-card">
+              <CardHeader>
+                <CardTitle className="text-base">行动提示</CardTitle>
+                <p className="text-xs text-muted-foreground">
+                  将这条顿悟落实为页面、主题或架构的下一步动作。
+                </p>
+              </CardHeader>
+              <CardContent className="text-sm text-muted-foreground">
+                先明确优先级，再确定对首页、导航或视觉系统的具体改动。
+              </CardContent>
+            </Card>
+          </motion.div>
         </aside>
-      </div>
+      </motion.div>
     </article>
   );
 }

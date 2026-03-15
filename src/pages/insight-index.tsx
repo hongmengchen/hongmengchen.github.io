@@ -1,5 +1,7 @@
 ﻿import { Link } from "react-router-dom";
 import { ArrowUpRight, Clock, Hash, Layers, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
+import type { Variants } from "framer-motion";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,10 +9,36 @@ import { getAllInsights } from "@/lib/insight";
 
 const insights = getAllInsights();
 
+const easeOutCubic = [0.22, 0.61, 0.36, 1] as const;
+
+const heroVariants: Variants = {
+  hidden: { opacity: 0, y: 18 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+};
+
+const listVariants: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08 } },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 16 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.45, ease: easeOutCubic },
+  },
+};
+
 export default function InsightIndex() {
   return (
     <section className="insight-shell mx-auto max-w-6xl px-6 py-12">
-      <div className="insight-hero">
+      <motion.div
+        className="insight-hero"
+        variants={heroVariants}
+        initial="hidden"
+        animate="show"
+      >
         <div className="insight-hero__grid bg-grid" />
         <div className="insight-hero__glow" />
         <Badge variant="secondary">顿悟</Badge>
@@ -34,73 +62,80 @@ export default function InsightIndex() {
             为站点更新提供依据与轨迹。
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {insights.length === 0 ? (
         <div className="mt-10 rounded-2xl border border-border/60 bg-card/70 p-8 text-sm text-muted-foreground">
           暂无顿悟，先写下一条会改变你站点形态的认知。
         </div>
       ) : (
-        <div className="mt-10 grid gap-6 md:grid-cols-2">
+        <motion.div
+          className="mt-10 grid gap-6 md:grid-cols-2"
+          variants={listVariants}
+          initial="hidden"
+          animate="show"
+        >
           {insights.map((insight) => (
-            <Card key={insight.meta.slug} className="insight-card">
-              <CardHeader className="space-y-3">
-                <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                  <Clock className="size-3.5" />
-                  <span>
-                    {insight.meta.updated || insight.meta.created || "未设置"}
-                  </span>
-                </div>
-                <CardTitle className="text-xl">
-                  <Link
-                    className="group inline-flex items-center gap-2 hover:text-primary"
-                    to={`/insights/${insight.meta.slug}`}
-                  >
-                    {insight.meta.title}
-                    <ArrowUpRight className="size-4 opacity-70 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                  </Link>
-                </CardTitle>
-                {insight.meta.summary ? (
-                  <p className="text-sm text-muted-foreground">
-                    {insight.meta.summary}
-                  </p>
-                ) : null}
-              </CardHeader>
-              <CardContent className="flex flex-wrap gap-2 text-xs">
-                {insight.meta.categories.map((item) => (
-                  <Badge
-                    key={`cat-${insight.meta.slug}-${item}`}
-                    variant="outline"
-                    className="insight-chip"
-                  >
-                    <Layers className="size-3" />
-                    {item}
-                  </Badge>
-                ))}
-                {insight.meta.tags.map((item) => (
-                  <Badge
-                    key={`tag-${insight.meta.slug}-${item}`}
-                    variant="secondary"
-                    className="insight-chip"
-                  >
-                    <Hash className="size-3" />
-                    {item}
-                  </Badge>
-                ))}
-                {(insight.meta.impact ?? []).map((item) => (
-                  <Badge
-                    key={`impact-${insight.meta.slug}-${item}`}
-                    variant="outline"
-                    className="insight-chip insight-chip--impact"
-                  >
-                    <Sparkles className="size-3" />
-                    {item}
-                  </Badge>
-                ))}
-              </CardContent>
-            </Card>
+            <motion.div key={insight.meta.slug} variants={itemVariants}>
+              <Card className="insight-card">
+                <CardHeader className="space-y-3">
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                    <Clock className="size-3.5" />
+                    <span>
+                      {insight.meta.updated || insight.meta.created || "未设置"}
+                    </span>
+                  </div>
+                  <CardTitle className="text-xl">
+                    <Link
+                      className="group inline-flex items-center gap-2 hover:text-primary"
+                      to={`/insights/${insight.meta.slug}`}
+                    >
+                      {insight.meta.title}
+                      <ArrowUpRight className="size-4 opacity-70 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    </Link>
+                  </CardTitle>
+                  {insight.meta.summary ? (
+                    <p className="text-sm text-muted-foreground">
+                      {insight.meta.summary}
+                    </p>
+                  ) : null}
+                </CardHeader>
+                <CardContent className="flex flex-wrap gap-2 text-xs">
+                  {insight.meta.categories.map((item) => (
+                    <Badge
+                      key={`cat-${insight.meta.slug}-${item}`}
+                      variant="outline"
+                      className="insight-chip"
+                    >
+                      <Layers className="size-3" />
+                      {item}
+                    </Badge>
+                  ))}
+                  {insight.meta.tags.map((item) => (
+                    <Badge
+                      key={`tag-${insight.meta.slug}-${item}`}
+                      variant="secondary"
+                      className="insight-chip"
+                    >
+                      <Hash className="size-3" />
+                      {item}
+                    </Badge>
+                  ))}
+                  {(insight.meta.impact ?? []).map((item) => (
+                    <Badge
+                      key={`impact-${insight.meta.slug}-${item}`}
+                      variant="outline"
+                      className="insight-chip insight-chip--impact"
+                    >
+                      <Sparkles className="size-3" />
+                      {item}
+                    </Badge>
+                  ))}
+                </CardContent>
+              </Card>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
     </section>
   );
