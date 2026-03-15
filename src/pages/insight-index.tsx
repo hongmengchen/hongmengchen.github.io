@@ -9,8 +9,10 @@ const insights = getAllInsights();
 
 export default function InsightIndex() {
   return (
-    <section className="mx-auto max-w-6xl px-6 py-12">
-      <div className="space-y-4">
+    <section className="insight-shell mx-auto max-w-6xl px-6 py-12">
+      <div className="insight-hero">
+        <div className="insight-hero__grid bg-grid" />
+        <div className="insight-hero__glow" />
         <Badge variant="secondary">顿悟</Badge>
         <h1 className="font-display text-3xl md:text-4xl">
           让认知驱动站点的进化
@@ -18,6 +20,20 @@ export default function InsightIndex() {
         <p className="text-muted-foreground">
           这里记录灵感、顿悟与规划，并明确它们如何影响布局、主题与架构。
         </p>
+        <div className="insight-hero__meta">
+          <div>
+            <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">
+              Evolution Signals
+            </p>
+            <p className="text-lg font-semibold text-foreground">
+              累计 {insights.length} 条
+            </p>
+          </div>
+          <div className="text-xs text-muted-foreground">
+            以“观察 — 结论 — 影响范围”作为标准结构，
+            为站点更新提供依据与轨迹。
+          </div>
+        </div>
       </div>
 
       {insights.length === 0 ? (
@@ -27,7 +43,7 @@ export default function InsightIndex() {
       ) : (
         <div className="mt-10 grid gap-6 md:grid-cols-2">
           {insights.map((insight) => (
-            <Card key={insight.meta.slug} className="bg-card/80">
+            <Card key={insight.meta.slug} className="insight-card">
               <CardHeader className="space-y-3">
                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
                   <Clock className="size-3.5" />
@@ -55,7 +71,7 @@ export default function InsightIndex() {
                   <Badge
                     key={`cat-${insight.meta.slug}-${item}`}
                     variant="outline"
-                    className="inline-flex items-center gap-1"
+                    className="insight-chip"
                   >
                     <Layers className="size-3" />
                     {item}
@@ -65,7 +81,7 @@ export default function InsightIndex() {
                   <Badge
                     key={`tag-${insight.meta.slug}-${item}`}
                     variant="secondary"
-                    className="inline-flex items-center gap-1"
+                    className="insight-chip"
                   >
                     <Hash className="size-3" />
                     {item}
@@ -75,7 +91,7 @@ export default function InsightIndex() {
                   <Badge
                     key={`impact-${insight.meta.slug}-${item}`}
                     variant="outline"
-                    className="inline-flex items-center gap-1"
+                    className="insight-chip insight-chip--impact"
                   >
                     <Sparkles className="size-3" />
                     {item}

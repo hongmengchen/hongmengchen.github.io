@@ -2,6 +2,7 @@
 import { ArrowLeft, Clock, Hash, Layers, Sparkles } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import MarkdownRenderer from "@/components/markdown/markdown-renderer";
 import { getInsightBySlug } from "@/lib/insight";
 
@@ -29,8 +30,10 @@ export default function InsightPost() {
   }
 
   return (
-    <article className="mx-auto max-w-3xl px-6 py-12">
-      <div className="space-y-4">
+    <article className="insight-shell mx-auto max-w-6xl px-6 py-12">
+      <div className="insight-hero insight-hero--compact">
+        <div className="insight-hero__grid bg-grid" />
+        <div className="insight-hero__glow" />
         <Link
           to="/insights"
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
@@ -41,43 +44,80 @@ export default function InsightPost() {
 
         <Badge variant="secondary">顿悟</Badge>
         <h1 className="font-display text-3xl md:text-4xl">{post.meta.title}</h1>
-        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-2">
-            <Clock className="size-3.5" />
-            {post.meta.updated || post.meta.created || "未设置"}
-          </span>
-          {post.meta.categories.map((item) => (
-            <span
-              key={`cat-${post.meta.slug}-${item}`}
-              className="inline-flex items-center gap-1"
-            >
-              <Layers className="size-3" />
-              {item}
+        {post.meta.summary ? (
+          <p className="text-muted-foreground">{post.meta.summary}</p>
+        ) : null}
+        <div className="insight-hero__meta">
+          <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-2">
+              <Clock className="size-3.5" />
+              {post.meta.updated || post.meta.created || "未设置"}
             </span>
-          ))}
-          {post.meta.tags.map((item) => (
-            <span
-              key={`tag-${post.meta.slug}-${item}`}
-              className="inline-flex items-center gap-1"
-            >
-              <Hash className="size-3" />
-              {item}
-            </span>
-          ))}
-          {(post.meta.impact ?? []).map((item) => (
-            <span
-              key={`impact-${post.meta.slug}-${item}`}
-              className="inline-flex items-center gap-1"
-            >
-              <Sparkles className="size-3" />
-              {item}
-            </span>
-          ))}
+            {post.meta.categories.map((item) => (
+              <span key={`cat-${post.meta.slug}-${item}`} className="insight-meta">
+                <Layers className="size-3" />
+                {item}
+              </span>
+            ))}
+            {post.meta.tags.map((item) => (
+              <span key={`tag-${post.meta.slug}-${item}`} className="insight-meta">
+                <Hash className="size-3" />
+                {item}
+              </span>
+            ))}
+            {(post.meta.impact ?? []).map((item) => (
+              <span key={`impact-${post.meta.slug}-${item}`} className="insight-meta">
+                <Sparkles className="size-3" />
+                {item}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="mt-10">
-        <MarkdownRenderer content={post.content} />
+      <div className="mt-10 grid gap-8 lg:grid-cols-[1.3fr_0.7fr]">
+        <div className="rounded-2xl border border-border/60 bg-card/80 p-8 shadow-soft">
+          <MarkdownRenderer content={post.content} />
+        </div>
+        <aside className="space-y-4">
+          <Card className="insight-card">
+            <CardHeader>
+              <CardTitle className="text-base">进化影响范围</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                这些标签指向本次顿悟会影响站点的哪些部分。
+              </p>
+            </CardHeader>
+            <CardContent className="flex flex-wrap gap-2 text-xs">
+              {(post.meta.impact ?? []).length > 0 ? (
+                (post.meta.impact ?? []).map((item) => (
+                  <Badge
+                    key={`impact-panel-${post.meta.slug}-${item}`}
+                    variant="outline"
+                    className="insight-chip insight-chip--impact"
+                  >
+                    <Sparkles className="size-3" />
+                    {item}
+                  </Badge>
+                ))
+              ) : (
+                <span className="text-xs text-muted-foreground">
+                  暂未标注影响范围。
+                </span>
+              )}
+            </CardContent>
+          </Card>
+          <Card className="insight-card">
+            <CardHeader>
+              <CardTitle className="text-base">行动提示</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                将这条顿悟落实为页面、主题或架构的下一步动作。
+              </p>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground">
+              先明确优先级，再确定对首页、导航或视觉系统的具体改动。
+            </CardContent>
+          </Card>
+        </aside>
       </div>
     </article>
   );

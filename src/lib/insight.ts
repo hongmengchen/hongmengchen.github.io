@@ -1,4 +1,4 @@
-import { parse as parseYaml } from "yaml";
+﻿import { parse as parseYaml } from "yaml";
 
 export type SiteHero = {
   eyebrow?: string;
@@ -199,19 +199,22 @@ const extractSlug = (path: string, frontMatterSlug?: unknown) => {
 };
 
 const parseFrontMatter = (raw: string) => {
-  const match = raw.match(/^---\s*[\r\n]+([\s\S]*?)\r?\n---\s*[\r\n]+/);
+  const normalized = raw.replace(/^\uFEFF/, "");
+  const match = normalized.match(
+    /^\s*---\s*[\r\n]+([\s\S]*?)\r?\n---\s*[\r\n]+/,
+  );
   if (!match) {
-    return { data: {}, content: raw };
+    return { data: {}, content: normalized };
   }
   const data = (parseYaml(match[1]) || {}) as Record<string, unknown>;
-  const content = raw.slice(match[0].length);
+  const content = normalized.slice(match[0].length);
   return { data, content };
 };
 
 const parseInsight = (path: string, raw: string): InsightPost => {
   const { data, content } = parseFrontMatter(raw);
   const meta: InsightMeta = {
-    title: typeof data.title === "string" ? data.title : "未命名洞察",
+    title: typeof data.title === "string" ? data.title : "未命名顿悟",
     slug: extractSlug(path, data.slug),
     summary: typeof data.summary === "string" ? data.summary : undefined,
     created: typeof data.created === "string" ? data.created : undefined,
