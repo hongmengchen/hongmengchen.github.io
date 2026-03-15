@@ -1,9 +1,13 @@
-﻿import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowUpRight, Clock, Hash, Layers, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
-import { WordCloud, type Word } from "@isoterik/react-word-cloud";
+import {
+  AnimatedWordRenderer,
+  WordCloud,
+  type Word,
+} from "@isoterik/react-word-cloud";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -35,9 +39,12 @@ const itemVariants: Variants = {
 };
 
 const cloudFont = "Space Grotesk, Geist Variable, sans-serif";
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, value));
 
 export default function InsightIndex() {
   const [selectedImpact, setSelectedImpact] = useState<string | null>(null);
+  const [cloudSize, setCloudSize] = useState({ width: 420, height: 176 });
 
   const { impacts, words, maxValue } = useMemo(() => {
     const counts = new Map<string, number>();
@@ -61,6 +68,22 @@ export default function InsightIndex() {
       (insight.meta.impact ?? []).includes(selectedImpact),
     );
   }, [selectedImpact]);
+
+  useEffect(() => {
+    const updateCloudSize = () => {
+      if (typeof window === "undefined") return;
+      const maxWidth = 440;
+      const nextWidth = clamp(window.innerWidth - 140, 260, maxWidth);
+      setCloudSize({
+        width: nextWidth,
+        height: Math.round(nextWidth * 0.42),
+      });
+    };
+
+    updateCloudSize();
+    window.addEventListener("resize", updateCloudSize);
+    return () => window.removeEventListener("resize", updateCloudSize);
+  }, []);
 
   return (
     <section className="insight-shell mx-auto max-w-6xl px-6 py-12">
@@ -109,38 +132,37 @@ export default function InsightIndex() {
                 暂无 impact 标签可视化。
               </div>
             ) : (
-              <div className="w-full">
+              <div className="flex w-full justify-center">
                 <WordCloud
                   words={words}
-                  width={520}
-                  height={240}
+                  width={cloudSize.width}
+                  height={cloudSize.height}
                   enableTooltip
                   font={cloudFont}
-                  fontSize={(word) => 14 + (word.value / maxValue) * 22}
+                  fontSize={(word) => 12 + (word.value / maxValue) * 18}
                   padding={2}
                   spiral="rectangular"
-                  rotate={() => 0}
+                  rotate={(_word, index) => (index % 7 === 0 ? -12 : 0)}
+                  fill={(word) =>
+                    selectedImpact === word.text
+                      ? "var(--primary)"
+                      : "var(--foreground)"
+                  }
+                  fontWeight={(word) =>
+                    selectedImpact === word.text ? 700 : 500
+                  }
                   onWordClick={(word) => {
                     setSelectedImpact(word.text);
                   }}
                   renderWord={(data, ref) => (
-                    <text
+                    <AnimatedWordRenderer
                       ref={ref}
-                      style={{
-                        fontFamily: data.font,
-                        fontSize: data.size,
-                        fontWeight: selectedImpact === data.text ? 700 : 500,
-                        fill:
-                          selectedImpact === data.text
-                            ? "var(--primary)"
-                            : "var(--foreground)",
+                      data={data}
+                      animationDelay={(_word, index) => index * 18}
+                      textStyle={{
                         cursor: "pointer",
                       }}
-                      transform={`translate(${data.x}, ${data.y}) rotate(${data.rotate})`}
-                      textAnchor="middle"
-                    >
-                      {data.text}
-                    </text>
+                    />
                   )}
                 />
               </div>
