@@ -1,6 +1,6 @@
 ﻿import { LayoutGrid, Github, ArrowUpRight } from "lucide-react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,9 +30,9 @@ const navPillClass = ({ isActive }: { isActive: boolean }) =>
       : "border-transparent bg-muted/60 text-muted-foreground hover:text-foreground",
   );
 
-const pageVariants = {
+const pageVariants: Variants = {
   initial: { opacity: 0, y: 12 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.25, 0.1, 0.25, 1] } },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" } },
   exit: { opacity: 0, y: -8, transition: { duration: 0.2 } },
 };
 

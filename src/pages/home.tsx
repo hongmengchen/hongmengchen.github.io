@@ -1,5 +1,5 @@
 ﻿import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,22 +15,22 @@ import { getSiteConfig } from "@/lib/insight";
 const defaultTitle = "秩序创造自由";
 const defaultHighlight = "自由";
 
-const fadeUp = {
+const fadeUp: Variants = {
   initial: { opacity: 0, y: 20 },
   animate: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, delay: 0.08 * i, ease: [0.25, 0.1, 0.25, 1] },
+    transition: { duration: 0.5, delay: 0.08 * i, ease: "easeOut" },
   }),
 };
 
-const stagger = {
+const stagger: Variants = {
   animate: {
     transition: { staggerChildren: 0.1, delayChildren: 0.2 },
   },
 };
 
-const cardHover = {
+const cardHover: Variants = {
   rest: { y: 0, boxShadow: "0 4px 12px rgba(0,0,0,0.04)" },
   hover: { y: -4, boxShadow: "0 12px 32px rgba(0,0,0,0.08)", transition: { duration: 0.25, ease: "easeOut" } },
 };

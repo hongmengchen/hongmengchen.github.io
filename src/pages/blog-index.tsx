@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { ArrowUpRight, Clock, Hash, Layers } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -9,22 +9,22 @@ import { getAllPosts } from "@/lib/blog";
 
 const posts = getAllPosts();
 
-const heroVariants = {
+const heroVariants: Variants = {
   hidden: { opacity: 0, y: 18 },
   show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
 };
 
-const listVariants = {
+const listVariants: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.08 } },
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 16 },
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.45, ease: [0.22, 0.61, 0.36, 1] },
+    transition: { duration: 0.45, ease: "easeOut" },
   },
 };
 
