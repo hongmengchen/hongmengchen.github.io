@@ -1,4 +1,5 @@
-﻿import { LayoutGrid, Github, ArrowUpRight } from "lucide-react";
+﻿import { useEffect } from "react";
+import { LayoutGrid, Github, ArrowUpRight } from "lucide-react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 
@@ -46,6 +47,14 @@ function ActiveIndicator() {
   );
 }
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [pathname]);
+  return null;
+}
+
 export default function SiteLayout() {
   const location = useLocation();
   const siteConfig = getSiteConfig();
@@ -55,6 +64,7 @@ export default function SiteLayout() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <ScrollToTop />
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-4">
           <NavLink to="/" className="group flex items-center gap-3">
