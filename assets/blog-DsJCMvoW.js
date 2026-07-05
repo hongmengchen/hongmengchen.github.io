@@ -1,4 +1,4 @@
-import{n as e}from"./createLucideIcon-xYe92zwX.js";var t=`---
+import{t as e}from"./browser-Cj0_s6SK.js";var t=`---
 title: "我到底在“写”什么？"
 slug: "what-writing"
 summary: "探讨在AI时代，我们到底在“写”什么"
