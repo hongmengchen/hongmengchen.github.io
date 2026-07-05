@@ -45,6 +45,8 @@
 }
 
 .dark {
+    --hero-glow-1: rgba(14, 116, 144, 0.25);
+    --hero-glow-2: rgba(59, 130, 246, 0.2);
     --background: oklch(0.17 0.02 250);
     --foreground: oklch(0.96 0.01 90);
     --card: oklch(0.2 0.02 250);
@@ -230,6 +232,17 @@
       radial-gradient(700px 420px at 90% 10%, var(--hero-glow-2), transparent 65%),
       linear-gradient(180deg, var(--hero-base), rgba(248, 250, 252, 0.92));
     }
+  .bg-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(circle at 50% 0%, rgba(0, 0, 0, 0.4) 20%, transparent 70%);
+    pointer-events: none;
+    }
   .bg-grid {
     background-image:
       linear-gradient(rgba(15, 23, 42, 0.08) 1px, transparent 1px),
@@ -244,6 +257,16 @@
     }
   .shadow-soft {
     box-shadow: 0 30px 80px -60px rgba(15, 23, 42, 0.6);
+    }
+  .shadow-card {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+    }
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px -12px rgba(0,0,0,0.15);
     }
   .glass-panel {
     background-color: rgba(255, 255, 255, 0.78);
@@ -331,6 +354,35 @@
   50% {
     transform: translateY(-8px);
     }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 3s infinite;
+}
+
+/* Smooth scrollbar for the whole page */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
 }
 
 

@@ -1,4 +1,5 @@
 ﻿import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,26 @@ import { getSiteConfig } from "@/lib/insight";
 
 const defaultTitle = "秩序创造自由";
 const defaultHighlight = "自由";
+
+const fadeUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, delay: 0.08 * i, ease: [0.25, 0.1, 0.25, 1] },
+  }),
+};
+
+const stagger = {
+  animate: {
+    transition: { staggerChildren: 0.1, delayChildren: 0.2 },
+  },
+};
+
+const cardHover = {
+  rest: { y: 0, boxShadow: "0 4px 12px rgba(0,0,0,0.04)" },
+  hover: { y: -4, boxShadow: "0 12px 32px rgba(0,0,0,0.08)", transition: { duration: 0.25, ease: "easeOut" } },
+};
 
 export default function Home() {
   const siteConfig = getSiteConfig();
@@ -31,8 +52,17 @@ export default function Home() {
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-hero" />
 
-        <section className="relative mx-auto flex min-h-screen max-w-3xl flex-col justify-between gap-10 px-6 py-16 sm:py-20">
-          <header className="flex items-center justify-between text-sm">
+        <motion.section
+          initial="initial"
+          animate="animate"
+          variants={stagger}
+          className="relative mx-auto flex min-h-screen max-w-3xl flex-col justify-between gap-10 px-6 py-16 sm:py-20"
+        >
+          <motion.header
+            variants={fadeUp}
+            custom={0}
+            className="flex items-center justify-between text-sm"
+          >
             <div>
               <p className="text-xs font-semibold tracking-[0.2em] text-muted-foreground">
                 {hero.eyebrow ?? "HONGMENG CHEN"}
@@ -41,85 +71,149 @@ export default function Home() {
                 {hero.tagline ?? "内容与协作的长期实践"}
               </p>
             </div>
-            <Button size="sm" variant="outline" asChild>
-              <a
-                href="https://github.com/hongmengchen/hongmengchen.github.io"
-                target="_blank"
-                rel="noreferrer"
-              >
-                GitHub
-              </a>
-            </Button>
-          </header>
+            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+              <Button size="sm" variant="outline" asChild>
+                <a
+                  href="https://github.com/hongmengchen/hongmengchen.github.io"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  GitHub
+                </a>
+              </Button>
+            </motion.div>
+          </motion.header>
 
-          <div className="space-y-6">
-            <Badge variant="secondary">首页</Badge>
-            <div className="h-px w-12 bg-primary/60" />
+          <motion.div variants={fadeUp} custom={1} className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+            >
+              <Badge variant="secondary">首页</Badge>
+              <div className="h-px w-12 bg-primary/60" />
+            </motion.div>
+
             <div className="space-y-3">
-              <h1 className="font-display text-4xl font-semibold leading-tight tracking-tight md:text-5xl">
+              <motion.h1
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+                className="font-display text-4xl font-semibold leading-tight tracking-tight md:text-5xl"
+              >
                 {titleSegments ? (
                   <>
                     {titleSegments[0]}
-                    <span className="text-primary">{heroHighlight}</span>
+                    <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">{heroHighlight}</span>
                     {titleSegments.slice(1).join(heroHighlight)}
                   </>
                 ) : (
                   heroTitle
                 )}
-              </h1>
-              <p className="font-display text-2xl font-semibold tracking-tight text-foreground/80 md:text-3xl">
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+                className="font-display text-2xl font-semibold tracking-tight text-foreground/80 md:text-3xl"
+              >
                 {hero.subtitle ?? "开源创造未来"}
-              </p>
-              <p className="text-base text-muted-foreground md:text-lg">
+              </motion.p>
+              <motion.p
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
+                className="text-base text-muted-foreground md:text-lg"
+              >
                 {hero.description ?? "前者是我对社会的认知，后者是我对未来的畅想。"}
-              </p>
+              </motion.p>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {focusTags.map((tag) => (
-                <Badge key={tag} variant="outline">
-                  {tag}
-                </Badge>
+
+            <motion.div
+              variants={fadeUp}
+              custom={2}
+              className="flex flex-wrap gap-2"
+            >
+              {focusTags.map((tag, i) => (
+                <motion.div
+                  key={tag}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3, delay: 0.5 + i * 0.08 }}
+                  whileHover={{ scale: 1.05, y: -1 }}
+                >
+                  <Badge variant="outline" className="transition-all duration-200">
+                    {tag}
+                  </Badge>
+                </motion.div>
               ))}
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <Button asChild>
-                <Link to="/insights">阅读顿悟系统</Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link to="/blog">阅读技术博客</Link>
-              </Button>
-            </div>
-          </div>
+            </motion.div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card size="sm" className="bg-card/70 shadow-soft">
-              <CardHeader>
-                <CardTitle>{statements.credo?.title ?? "信条"}</CardTitle>
-                <CardDescription>
-                  {statements.credo?.tagline ?? "秩序创造自由。"}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground">
-                {statements.credo?.body ?? "用结构化与节奏，降低混乱成本，释放创造力。"}
-              </CardContent>
-            </Card>
-            <Card size="sm" className="bg-card/70 shadow-soft">
-              <CardHeader>
-                <CardTitle>{statements.goal?.title ?? "目标"}</CardTitle>
-                <CardDescription>
-                  {statements.goal?.tagline ?? "开源创造未来。"}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground">
-                {statements.goal?.body ?? "以开放协作沉淀方法与工具，形成长期资产。"}
-              </CardContent>
-            </Card>
-          </div>
+            <motion.div
+              variants={fadeUp}
+              custom={3}
+              className="flex flex-wrap gap-3"
+            >
+              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                <Button asChild>
+                  <Link to="/insights">阅读顿悟系统</Link>
+                </Button>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                <Button variant="outline" asChild>
+                  <Link to="/blog">阅读技术博客</Link>
+                </Button>
+              </motion.div>
+            </motion.div>
+          </motion.div>
 
-          <footer className="border-t border-border/60 pt-4 text-xs text-muted-foreground">
+          <motion.div
+            variants={fadeUp}
+            custom={4}
+            className="grid gap-4 md:grid-cols-2"
+          >
+            {[
+              {
+                key: "credo",
+                title: statements.credo?.title ?? "信条",
+                tagline: statements.credo?.tagline ?? "秩序创造自由。",
+                body: statements.credo?.body ?? "用结构化与节奏，降低混乱成本，释放创造力。",
+              },
+              {
+                key: "goal",
+                title: statements.goal?.title ?? "目标",
+                tagline: statements.goal?.tagline ?? "开源创造未来。",
+                body: statements.goal?.body ?? "以开放协作沉淀方法与工具，形成长期资产。",
+              },
+            ].map((item) => (
+              <motion.div
+                key={item.key}
+                initial="rest"
+                whileHover="hover"
+                variants={cardHover}
+              >
+                <Card size="sm" className="bg-card/70 shadow-soft transition-shadow duration-300">
+                  <CardHeader>
+                    <CardTitle>{item.title}</CardTitle>
+                    <CardDescription>{item.tagline}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="text-sm text-muted-foreground">
+                    {item.body}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          <motion.footer
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+            className="border-t border-border/60 pt-4 text-xs text-muted-foreground"
+          >
             简约、清晰、长期主义。
-          </footer>
-        </section>
+          </motion.footer>
+        </motion.section>
       </div>
     </main>
   );

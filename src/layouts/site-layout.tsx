@@ -1,5 +1,6 @@
-﻿import { LayoutGrid } from "lucide-react";
-import { NavLink, Outlet } from "react-router-dom";
+﻿import { LayoutGrid, Github, ArrowUpRight } from "lucide-react";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,7 @@ const navItems = [
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   cn(
-    "text-sm font-medium transition-colors",
+    "relative text-sm font-medium transition-colors duration-200",
     isActive
       ? "text-foreground"
       : "text-muted-foreground hover:text-foreground",
@@ -23,13 +24,30 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 
 const navPillClass = ({ isActive }: { isActive: boolean }) =>
   cn(
-    "rounded-full border px-3 py-1 text-xs font-semibold transition-colors",
+    "rounded-full border px-3 py-1 text-xs font-semibold transition-colors duration-200",
     isActive
       ? "border-primary/40 bg-primary/10 text-primary"
       : "border-transparent bg-muted/60 text-muted-foreground hover:text-foreground",
   );
 
+const pageVariants = {
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.25, 0.1, 0.25, 1] } },
+  exit: { opacity: 0, y: -8, transition: { duration: 0.2 } },
+};
+
+function ActiveIndicator() {
+  return (
+    <motion.span
+      layoutId="nav-active"
+      className="absolute -bottom-1 left-0 right-0 h-0.5 rounded-full bg-primary"
+      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+    />
+  );
+}
+
 export default function SiteLayout() {
+  const location = useLocation();
   const siteConfig = getSiteConfig();
   const eyebrow = siteConfig.hero?.eyebrow ?? "HONGMENG CHEN";
   const title = siteConfig.hero?.title ?? "秩序创造自由";
@@ -37,10 +55,10 @@ export default function SiteLayout() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur">
+      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-4">
-          <NavLink to="/" className="flex items-center gap-3">
-            <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <NavLink to="/" className="group flex items-center gap-3">
+            <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-105">
               <LayoutGrid className="size-4" />
             </span>
             <span>
@@ -51,7 +69,7 @@ export default function SiteLayout() {
             </span>
           </NavLink>
 
-          <nav className="hidden items-center gap-6 md:flex">
+          <nav className="hidden items-center gap-8 md:flex">
             {navItems.map((item) => (
               <NavLink
                 key={item.to}
@@ -59,7 +77,12 @@ export default function SiteLayout() {
                 end={item.to === "/"}
                 className={navLinkClass}
               >
-                {item.label}
+                {({ isActive }) => (
+                  <>
+                    <span>{item.label}</span>
+                    {isActive && <ActiveIndicator />}
+                  </>
+                )}
               </NavLink>
             ))}
           </nav>
@@ -81,8 +104,10 @@ export default function SiteLayout() {
                 href="https://github.com/hongmengchen/hongmengchen.github.io"
                 target="_blank"
                 rel="noreferrer"
+                className="inline-flex items-center gap-1.5"
               >
-                GitHub
+                <Github className="size-3.5" />
+                <span className="hidden sm:inline">GitHub</span>
               </a>
             </Button>
           </div>
@@ -103,17 +128,49 @@ export default function SiteLayout() {
       </header>
 
       <main>
-        <Outlet />
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname}
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+          >
+            <Outlet />
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       <Separator className="mx-auto max-w-6xl" />
 
       <footer className="mx-auto max-w-6xl px-6 py-10 text-sm text-muted-foreground">
         <div className="flex flex-col gap-3">
-          <p>以工程化思维沉淀内容、工具与协作，让创作成为长期资产。</p>
-          <div className="flex flex-wrap gap-4">
+          <p className="leading-relaxed">以工程化思维沉淀内容、工具与协作，让创作成为长期资产。</p>
+          <div className="flex flex-wrap gap-x-6 gap-y-2">
             <span>© 2026 Hongmeng Chen</span>
-            <span>Vite + React + Tailwind + shadcn/ui</span>
+            <span className="flex items-center gap-1">
+              使用{" "}
+              <a href="https://vite.dev" target="_blank" rel="noreferrer" className="underline underline-offset-2 decoration-border hover:decoration-foreground transition-all">
+                Vite
+              </a>
+              +
+              <a href="https://react.dev" target="_blank" rel="noreferrer" className="underline underline-offset-2 decoration-border hover:decoration-foreground transition-all">
+                React
+              </a>
+              +
+              <a href="https://tailwindcss.com" target="_blank" rel="noreferrer" className="underline underline-offset-2 decoration-border hover:decoration-foreground transition-all">
+                Tailwind
+              </a>
+              构建
+            </span>
+            <a
+              href="https://github.com/hongmengchen/hongmengchen.github.io"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 underline underline-offset-2 decoration-border hover:decoration-foreground transition-all"
+            >
+              源码 <ArrowUpRight className="size-3" />
+            </a>
           </div>
         </div>
       </footer>
