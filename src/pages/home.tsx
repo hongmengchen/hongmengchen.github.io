@@ -165,6 +165,11 @@ export default function Home() {
                   <Link to="/blog">阅读技术博客</Link>
                 </Button>
               </motion.div>
+              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                <Button variant="secondary" asChild>
+                  <Link to="/game">🎮 玩游戏</Link>
+                </Button>
+              </motion.div>
             </motion.div>
           </motion.div>
 
