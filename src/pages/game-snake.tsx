@@ -239,7 +239,6 @@ export default function GameSnake() {
             {state.body.map((seg, idx) => {
               const isHead = idx === 0;
               const size = isHead ? cellSize - 2 : cellSize - 3;
-              const offset = isHead ? 1 : 1.5;
               return (
                 <motion.div
                   key={`snake-${state.gameOver ? "over-" : ""}${idx}`}
