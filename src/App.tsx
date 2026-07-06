@@ -1,4 +1,4 @@
-﻿import { Suspense, lazy, useEffect, useMemo } from "react";
+import { Suspense, lazy, useEffect, useMemo } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import Home from "@/pages/home";
@@ -6,6 +6,7 @@ import SiteLayout from "@/layouts/site-layout";
 import { applySiteTheme, getSiteConfig } from "@/lib/insight";
 
 const Game2048 = lazy(() => import("@/pages/game-2048"));
+const GameSnake = lazy(() => import("@/pages/game-snake"));
 const BlogIndex = lazy(() => import("@/pages/blog-index"));
 const BlogPost = lazy(() => import("@/pages/blog-post"));
 const InsightIndex = lazy(() => import("@/pages/insight-index"));
@@ -36,6 +37,7 @@ function App() {
       element: <SiteLayout />,
       children: [
         { path: "/game", element: withSuspense(<Game2048 />) },
+        { path: "/game/snake", element: withSuspense(<GameSnake />) },
         { path: "/insights", element: withSuspense(<InsightIndex />) },
         { path: "/insights/:slug", element: withSuspense(<InsightPost />) },
         { path: "/blog", element: withSuspense(<BlogIndex />) },

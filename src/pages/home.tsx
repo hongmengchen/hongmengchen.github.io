@@ -1,6 +1,7 @@
 ﻿import { Link } from "react-router-dom";
 import { motion, type Variants } from "framer-motion";
 
+import { Gamepad2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -203,6 +204,63 @@ export default function Home() {
                 </Card>
               </motion.div>
             ))}
+          </motion.div>
+
+          {/* Games section */}
+          <motion.div variants={fadeUp} custom={5}>
+            <Card size="sm" className="bg-card/70 shadow-soft transition-shadow duration-300">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <Gamepad2 className="size-5 text-primary" />
+                  <CardTitle>小游戏</CardTitle>
+                </div>
+                <CardDescription>闲暇时刻，放松一下</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <motion.div
+                    initial="rest"
+                    whileHover="hover"
+                    variants={cardHover}
+                  >
+                    <Link
+                      to="/game"
+                      className="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/30 p-4 transition-colors hover:bg-muted/60"
+                    >
+                      <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-lg font-bold text-primary">
+                        2K
+                      </span>
+                      <div className="text-left">
+                        <div className="text-sm font-medium">秩序合成</div>
+                        <div className="text-xs text-muted-foreground">
+                          合并数字，创造秩序。移动端适配，触屏可玩。
+                        </div>
+                      </div>
+                    </Link>
+                  </motion.div>
+                  <motion.div
+                    initial="rest"
+                    whileHover="hover"
+                    variants={cardHover}
+                  >
+                    <Link
+                      to="/game/snake"
+                      className="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/30 p-4 transition-colors hover:bg-muted/60"
+                    >
+                      <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-lg font-bold text-emerald-500">
+                        🐍
+                      </span>
+                      <div className="text-left">
+                        <div className="text-sm font-medium">贪吃蛇</div>
+                        <div className="text-xs text-muted-foreground">
+                          经典贪吃蛇，滑动操作。吃食物，变长，别撞墙。
+                        </div>
+                      </div>
+                    </Link>
+                  </motion.div>
+                </div>
+              </CardContent>
+            </Card>
           </motion.div>
 
           <motion.footer
