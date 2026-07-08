@@ -222,17 +222,17 @@ export default function Home() {
                 <CardDescription>闲暇时刻，放松一下</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid gap-3 sm:grid-cols-2">
+                <div className="grid gap-3 sm:grid-cols-3">
                   <motion.div
                     initial="rest"
                     whileHover="hover"
                     variants={cardHover}
                   >
                     <Link
-                      to="/game"
+                      to="/game/2048"
                       className="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/30 p-4 transition-colors hover:bg-muted/60"
                     >
-                      <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-lg font-bold text-primary">
+                      <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 text-lg font-bold text-amber-600">
                         2K
                       </span>
                       <div className="text-left">
@@ -259,6 +259,26 @@ export default function Home() {
                         <div className="text-sm font-medium">贪吃蛇</div>
                         <div className="text-xs text-muted-foreground">
                           经典贪吃蛇，滑动操作。吃食物，变长，别撞墙。
+                        </div>
+                      </div>
+                    </Link>
+                  </motion.div>
+                  <motion.div
+                    initial="rest"
+                    whileHover="hover"
+                    variants={cardHover}
+                  >
+                    <Link
+                      to="/game/tictactoe"
+                      className="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/30 p-4 transition-colors hover:bg-muted/60"
+                    >
+                      <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-violet-500/10 text-lg font-bold text-violet-500">
+                        ✖
+                      </span>
+                      <div className="text-left">
+                        <div className="text-sm font-medium">井字棋</div>
+                        <div className="text-xs text-muted-foreground">
+                          三连一线，智取对手。支持双人和AI模式。
                         </div>
                       </div>
                     </Link>

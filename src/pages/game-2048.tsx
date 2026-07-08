@@ -7,7 +7,10 @@ import {
   ArrowLeft,
   ArrowRight,
   Trophy,
+  ArrowLeft as ArrowBack,
+  Gamepad2,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 import {
   type Grid,
@@ -19,37 +22,38 @@ import {
   hasWon,
 } from "@/lib/game-2048";
 
-const TILE_COLORS: Record<number, { bg: string; text: string }> = {
-  0: { bg: "bg-[#cdc1b4]/30", text: "text-transparent" },
-  2: { bg: "bg-[#eee4da]", text: "text-[#776e65]" },
-  4: { bg: "bg-[#ede0c8]", text: "text-[#776e65]" },
-  8: { bg: "bg-[#f2b179]", text: "text-white" },
-  16: { bg: "bg-[#f59563]", text: "text-white" },
-  32: { bg: "bg-[#f67c5f]", text: "text-white" },
-  64: { bg: "bg-[#f65e3b]", text: "text-white" },
-  128: { bg: "bg-[#edcf72]", text: "text-white" },
-  256: { bg: "bg-[#edcc61]", text: "text-white" },
-  512: { bg: "bg-[#edc850]", text: "text-white" },
-  1024: { bg: "bg-[#edc53f]", text: "text-white" },
-  2048: { bg: "bg-[#edc22e]", text: "text-white" },
-  4096: { bg: "bg-[#3c3a32]", text: "text-white" },
-  8192: { bg: "bg-[#3c3a32]", text: "text-white" },
+const TILE_COLORS: Record<number, { bg: string; text: string; shadow: string }> = {
+  0: { bg: "bg-[#cdc1b4]/30", text: "text-transparent", shadow: "" },
+  2: { bg: "bg-[#eee4da]", text: "text-[#776e65]", shadow: "shadow-amber-100/50" },
+  4: { bg: "bg-[#ede0c8]", text: "text-[#776e65]", shadow: "shadow-amber-200/50" },
+  8: { bg: "bg-[#f2b179]", text: "text-white", shadow: "shadow-orange-300/50" },
+  16: { bg: "bg-[#f59563]", text: "text-white", shadow: "shadow-orange-400/50" },
+  32: { bg: "bg-[#f67c5f]", text: "text-white", shadow: "shadow-orange-500/50" },
+  64: { bg: "bg-[#f65e3b]", text: "text-white", shadow: "shadow-red-400/50" },
+  128: { bg: "bg-[#edcf72]", text: "text-white", shadow: "shadow-yellow-400/50" },
+  256: { bg: "bg-[#edcc61]", text: "text-white", shadow: "shadow-yellow-400/50" },
+  512: { bg: "bg-[#edc850]", text: "text-white", shadow: "shadow-yellow-500/50" },
+  1024: { bg: "bg-[#edc53f]", text: "text-white", shadow: "shadow-yellow-500/50" },
+  2048: { bg: "bg-[#edc22e]", text: "text-white", shadow: "shadow-amber-500/50" },
+  4096: { bg: "bg-[#3c3a32]", text: "text-white", shadow: "shadow-gray-600/50" },
+  8192: { bg: "bg-[#3c3a32]", text: "text-white", shadow: "shadow-gray-600/50" },
 };
 
 function getTileSize(): number {
   if (typeof window === "undefined") return 100;
   const vw = window.innerWidth;
   if (vw < 380) return 60;
-  if (vw < 480) return 68;
-  if (vw < 640) return 76;
+  if (vw < 480) return 72;
+  if (vw < 640) return 82;
   return 100;
 }
 
 function getGap(): number {
   if (typeof window === "undefined") return 8;
   const vw = window.innerWidth;
-  if (vw < 380) return 4;
+  if (vw < 380) return 5;
   if (vw < 480) return 6;
+  if (vw < 640) return 7;
   return 8;
 }
 
@@ -96,26 +100,26 @@ function Tile({ tile, cellSize, gap }: { tile: TileData; cellSize: number; gap: 
         tile.isNew
           ? { scale: 0, opacity: 0 }
           : tile.isMerged
-            ? { scale: 1.2, opacity: 1 }
-            : { scale: 1 }
+            ? { scale: 1.25, opacity: 0.8 }
+            : { scale: 0.95, opacity: 0.8 }
       }
       animate={{
         x: tile.col * cellTotal,
         y: tile.row * cellTotal,
-        scale: tile.isMerged ? [1.2, 1] : 1,
+        scale: tile.isMerged ? [1.25, 1] : 1,
         opacity: 1,
       }}
       transition={{
-        x: { type: "spring", stiffness: 280, damping: 25, mass: 0.8 },
-        y: { type: "spring", stiffness: 280, damping: 25, mass: 0.8 },
+        x: { type: "spring", stiffness: 260, damping: 25, mass: 0.7 },
+        y: { type: "spring", stiffness: 260, damping: 25, mass: 0.7 },
         scale: tile.isMerged
-          ? { duration: 0.18, ease: "easeOut" }
+          ? { duration: 0.2, ease: "easeOut" }
           : tile.isNew
-            ? { type: "spring", stiffness: 350, damping: 20 }
-            : {},
-        opacity: tile.isNew ? { duration: 0.15 } : {},
+            ? { type: "spring", stiffness: 400, damping: 18 }
+            : { duration: 0.15 },
+        opacity: { duration: 0.12 },
       }}
-      className={`absolute flex items-center justify-center rounded-lg font-bold shadow-sm select-none ${color.bg} ${color.text} ${fontSize}`}
+      className={`absolute flex items-center justify-center rounded-lg font-bold drop-shadow-sm select-none ${color.bg} ${color.text} ${fontSize} ${color.shadow}`}
       style={{
         width: cellSize,
         height: cellSize,
@@ -188,9 +192,7 @@ export default function Game2048() {
         } catch {}
       }
 
-      // Convert to tiles for animation
       const tileData = gridToTiles(withSpawn);
-      // Mark which are merged based on diff
       for (let r = 0; r < grid.length; r++) {
         for (let c = 0; c < grid[r].length; c++) {
           if (grid[r][c] !== 0 && withSpawn[r][c] === grid[r][c] * 2) {
@@ -200,13 +202,10 @@ export default function Game2048() {
             if (t) t.isMerged = true;
           }
           if (grid[r][c] === 0 && withSpawn[r][c] !== 0) {
-            // Could be new spawn or a moved tile - mark obvious spawns
             const t = tileData.find(
               (td) => td.row === r && td.col === c && td.value === withSpawn[r][c],
             );
             if (t && (withSpawn[r][c] === 2 || withSpawn[r][c] === 4)) {
-              // Only mark as "new" if it's a small tile that appeared out of nowhere
-              // Check if the source column/row was empty
               let isSpawn = false;
               if (dir === "left" || dir === "right") {
                 const srcCol = dir === "left" ? c - 1 : c + 1;
@@ -255,7 +254,6 @@ export default function Game2048() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleKeyDown]);
 
-  // Touch handling
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -301,176 +299,214 @@ export default function Game2048() {
   const boardSize = cellTotal * 4 + gap;
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 md:py-12">
-      {/* Header */}
-      <div className="mb-6 text-center md:text-left">
-        <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-          秩序<span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">合成</span>
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          合并数字，创造秩序 · <kbd className="rounded border bg-muted px-1.5 py-0.5 text-xs">←↑↓→</kbd> 方向键 / 滑动手势
-        </p>
+    <div className="relative min-h-screen">
+      {/* Ambient background */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute -left-40 -top-40 size-[600px] rounded-full bg-amber-500/5 blur-3xl" />
+        <div className="absolute -bottom-40 -right-40 size-[500px] rounded-full bg-orange-500/5 blur-3xl" />
       </div>
 
-      {/* Score & Controls */}
-      <div className="mb-4 flex flex-wrap items-center justify-center gap-4 md:justify-start">
-        <div className="flex gap-3">
-          <div className="rounded-lg bg-muted px-4 py-2 text-center">
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              分数
-            </div>
-            <div className="text-xl font-bold tabular-nums">{score}</div>
-          </div>
-          <div className="rounded-lg bg-muted px-4 py-2 text-center">
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              最高分
-            </div>
-            <div className="text-xl font-bold tabular-nums">{bestScore}</div>
-          </div>
+      <div className="mx-auto max-w-2xl px-4 py-6 md:py-10">
+        {/* Back to games */}
+        <Link
+          to="/game"
+          className="mb-4 inline-flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ArrowBack className="size-3.5" />
+          <Gamepad2 className="size-3" />
+          <span>返回游戏列表</span>
+        </Link>
+
+        {/* Header */}
+        <div className="mb-6 text-center md:text-left">
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+            秩序<span className="bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">合成</span>
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            合并数字，创造秩序 · <kbd className="rounded border bg-muted px-1.5 py-0.5 text-xs">←↑↓→</kbd> 方向键 / 滑动手势
+          </p>
         </div>
 
-        <button
-          onClick={resetGame}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
-        >
-          <RotateCcw className="size-3.5" />
-          新游戏
-        </button>
-      </div>
-
-      {/* Game Board */}
-      <div className="flex justify-center">
-        <div
-          ref={containerRef}
-          className="relative rounded-xl bg-[#bbada0] shadow-lg"
-          style={{ width: boardSize, height: boardSize }}
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-        >
-          {/* Background cells */}
-          <div
-            className="absolute inset-0 grid p-0"
-            style={{
-              gridTemplateColumns: `repeat(4, ${cellSize}px)`,
-              gridTemplateRows: `repeat(4, ${cellSize}px)`,
-              gap,
-              padding: gap,
-            }}
-          >
-            {Array.from({ length: 16 }).map((_, i) => (
-              <div
-                key={i}
-                className="rounded-lg bg-[#cdc1b4]/40"
-                style={{ width: cellSize, height: cellSize }}
-              />
-            ))}
-          </div>
-
-          {/* Animated tiles */}
-          <AnimatePresence mode="popLayout">
-            {tiles.map((tile) => (
-              <Tile key={tile.id} tile={tile} cellSize={cellSize} gap={gap} />
-            ))}
-          </AnimatePresence>
-
-          {/* Overlay */}
-          <AnimatePresence>
-            {(gameOver || (won && !keepPlaying)) && (
+        {/* Score & Controls */}
+        <div className="mb-5 flex flex-wrap items-center justify-center gap-4 md:justify-start">
+          <div className="flex gap-3">
+            <div className="rounded-xl border border-border/50 bg-gradient-to-b from-background to-muted/30 px-4 py-2 text-center shadow-sm">
+              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                分数
+              </div>
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-xl bg-[#bbada0]/90 backdrop-blur-sm"
+                key={score}
+                initial={{ scale: 1.3, color: "#f59e0b" }}
+                animate={{ scale: 1, color: "inherit" }}
+                transition={{ duration: 0.3 }}
+                className="text-xl font-bold tabular-nums"
               >
-                <motion.div
-                  initial={{ scale: 0.8 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  className="flex flex-col items-center gap-4"
-                >
-                  {won ? (
-                    <>
-                      <Trophy className="size-10 text-yellow-500" />
-                      <span className="text-2xl font-bold text-white">
-                        你赢了！
-                      </span>
-                      <div className="flex gap-3">
-                        <button
-                          onClick={continueGame}
-                          className="rounded-lg bg-white/20 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/30"
-                        >
-                          继续挑战
-                        </button>
-                        <button
-                          onClick={resetGame}
-                          className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-[#776e65] transition-colors hover:bg-white/90"
-                        >
-                          再来一局
-                        </button>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <span className="text-2xl font-bold text-white">
-                        游戏结束
-                      </span>
-                      <span className="text-sm text-white/70">
-                        得分：{score}
-                      </span>
-                      <button
-                        onClick={resetGame}
-                        className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-[#776e65] transition-colors hover:bg-white/90"
-                      >
-                        再来一局
-                      </button>
-                    </>
-                  )}
-                </motion.div>
+                {score}
               </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
+            </div>
+            <div className="rounded-xl border border-border/50 bg-gradient-to-b from-background to-muted/30 px-4 py-2 text-center shadow-sm">
+              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                最高分
+              </div>
+              <div className="text-xl font-bold tabular-nums">{bestScore}</div>
+            </div>
+          </div>
 
-      {/* Mobile buttons */}
-      <div className="mt-6 flex justify-center md:hidden">
-        <div className="grid grid-cols-3 gap-2">
-          <div />
           <button
-            onTouchStart={(e) => { e.preventDefault(); handleMove("up"); }}
-            className="flex size-12 items-center justify-center rounded-xl border border-border bg-background transition-colors active:bg-muted"
+            onClick={resetGame}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-gradient-to-b from-background to-muted/30 px-4 py-2 text-sm font-medium shadow-sm transition-all hover:bg-muted hover:shadow-md active:scale-95"
           >
-            <ArrowUp className="size-5" />
-          </button>
-          <div />
-          <button
-            onTouchStart={(e) => { e.preventDefault(); handleMove("left"); }}
-            className="flex size-12 items-center justify-center rounded-xl border border-border bg-background transition-colors active:bg-muted"
-          >
-            <ArrowLeft className="size-5" />
-          </button>
-          <button
-            onTouchStart={(e) => { e.preventDefault(); handleMove("down"); }}
-            className="flex size-12 items-center justify-center rounded-xl border border-border bg-background transition-colors active:bg-muted"
-          >
-            <ArrowDown className="size-5" />
-          </button>
-          <button
-            onTouchStart={(e) => { e.preventDefault(); handleMove("right"); }}
-            className="flex size-12 items-center justify-center rounded-xl border border-border bg-background transition-colors active:bg-muted"
-          >
-            <ArrowRight className="size-5" />
+            <RotateCcw className="size-3.5" />
+            新游戏
           </button>
         </div>
-      </div>
 
-      {/* Rules */}
-      <div className="mt-8 text-center text-xs text-muted-foreground">
-        <p className="leading-relaxed">
-          用方向键移动所有方块。相同数字相遇会合并，最终合成 <strong className="text-foreground">2048</strong>
-          。<br />
-          每一次移动都是秩序的建立 —— 从混沌中创造有序。
-        </p>
+        {/* Game Board */}
+        <div className="flex justify-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4 }}
+          >
+            <div
+              ref={containerRef}
+              className="relative rounded-2xl bg-gradient-to-br from-[#bbada0] to-[#a39485] shadow-xl"
+              style={{ width: boardSize, height: boardSize }}
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+            >
+              {/* Background cells */}
+              <div
+                className="absolute inset-0 grid p-0"
+                style={{
+                  gridTemplateColumns: `repeat(4, ${cellSize}px)`,
+                  gridTemplateRows: `repeat(4, ${cellSize}px)`,
+                  gap,
+                  padding: gap,
+                }}
+              >
+                {Array.from({ length: 16 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="rounded-lg bg-[#cdc1b4]/40 shadow-inner"
+                    style={{ width: cellSize, height: cellSize }}
+                  />
+                ))}
+              </div>
+
+              {/* Animated tiles */}
+              <AnimatePresence mode="popLayout">
+                {tiles.map((tile) => (
+                  <Tile key={tile.id} tile={tile} cellSize={cellSize} gap={gap} />
+                ))}
+              </AnimatePresence>
+
+              {/* Overlay */}
+              <AnimatePresence>
+                {(gameOver || (won && !keepPlaying)) && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-2xl bg-[#bbada0]/90 backdrop-blur-sm"
+                  >
+                    <motion.div
+                      initial={{ scale: 0.8, y: 20 }}
+                      animate={{ scale: 1, y: 0 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 22 }}
+                      className="flex flex-col items-center gap-4"
+                    >
+                      {won ? (
+                        <>
+                          <motion.div
+                            initial={{ rotate: -20, scale: 0 }}
+                            animate={{ rotate: 0, scale: 1 }}
+                            transition={{ type: "spring", stiffness: 200 }}
+                          >
+                            <Trophy className="size-12 text-yellow-500 drop-shadow-lg" />
+                          </motion.div>
+                          <span className="text-2xl font-bold text-white drop-shadow">
+                            你赢了！🎉
+                          </span>
+                          <div className="flex gap-3">
+                            <button
+                              onClick={continueGame}
+                              className="rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur transition-colors hover:bg-white/30 active:scale-95"
+                            >
+                              继续挑战
+                            </button>
+                            <button
+                              onClick={resetGame}
+                              className="rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-[#776e65] shadow-md transition-all hover:bg-white/90 active:scale-95"
+                            >
+                              再来一局
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-2xl font-bold text-white drop-shadow">
+                            游戏结束
+                          </span>
+                          <span className="text-sm text-white/80">
+                            得分：{score}
+                          </span>
+                          <button
+                            onClick={resetGame}
+                            className="rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-[#776e65] shadow-md transition-all hover:bg-white/90 active:scale-95"
+                          >
+                            再来一局
+                          </button>
+                        </>
+                      )}
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Mobile buttons */}
+        <div className="mt-6 flex justify-center md:hidden">
+          <div className="grid grid-cols-3 gap-2">
+            <div />
+            <button
+              onTouchStart={(e) => { e.preventDefault(); handleMove("up"); }}
+              className="flex size-13 items-center justify-center rounded-xl border border-border bg-gradient-to-b from-background to-muted/30 shadow-sm transition-all active:scale-90 active:bg-muted"
+            >
+              <ArrowUp className="size-5" />
+            </button>
+            <div />
+            <button
+              onTouchStart={(e) => { e.preventDefault(); handleMove("left"); }}
+              className="flex size-13 items-center justify-center rounded-xl border border-border bg-gradient-to-b from-background to-muted/30 shadow-sm transition-all active:scale-90 active:bg-muted"
+            >
+              <ArrowLeft className="size-5" />
+            </button>
+            <button
+              onTouchStart={(e) => { e.preventDefault(); handleMove("down"); }}
+              className="flex size-13 items-center justify-center rounded-xl border border-border bg-gradient-to-b from-background to-muted/30 shadow-sm transition-all active:scale-90 active:bg-muted"
+            >
+              <ArrowDown className="size-5" />
+            </button>
+            <button
+              onTouchStart={(e) => { e.preventDefault(); handleMove("right"); }}
+              className="flex size-13 items-center justify-center rounded-xl border border-border bg-gradient-to-b from-background to-muted/30 shadow-sm transition-all active:scale-90 active:bg-muted"
+            >
+              <ArrowRight className="size-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Rules */}
+        <div className="mt-8 text-center text-xs text-muted-foreground">
+          <p className="leading-relaxed">
+            用方向键移动所有方块。相同数字相遇会合并，最终合成 <strong className="text-foreground">2048</strong>。
+            <br />
+            每一次移动都是秩序的建立 —— 从混沌中创造有序。
+          </p>
+        </div>
       </div>
     </div>
   );

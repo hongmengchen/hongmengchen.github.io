@@ -5,8 +5,10 @@ import Home from "@/pages/home";
 import SiteLayout from "@/layouts/site-layout";
 import { applySiteTheme, getSiteConfig } from "@/lib/insight";
 
+const GameHub = lazy(() => import("@/pages/game-hub"));
 const Game2048 = lazy(() => import("@/pages/game-2048"));
 const GameSnake = lazy(() => import("@/pages/game-snake"));
+const GameTicTacToe = lazy(() => import("@/pages/game-tictactoe"));
 const BlogIndex = lazy(() => import("@/pages/blog-index"));
 const BlogPost = lazy(() => import("@/pages/blog-post"));
 const InsightIndex = lazy(() => import("@/pages/insight-index"));
@@ -36,8 +38,10 @@ function App() {
     {
       element: <SiteLayout />,
       children: [
-        { path: "/game", element: withSuspense(<Game2048 />) },
+        { path: "/game", element: withSuspense(<GameHub />) },
+        { path: "/game/2048", element: withSuspense(<Game2048 />) },
         { path: "/game/snake", element: withSuspense(<GameSnake />) },
+        { path: "/game/tictactoe", element: withSuspense(<GameTicTacToe />) },
         { path: "/insights", element: withSuspense(<InsightIndex />) },
         { path: "/insights/:slug", element: withSuspense(<InsightPost />) },
         { path: "/blog", element: withSuspense(<BlogIndex />) },

@@ -12,7 +12,6 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { label: "首页", to: "/" },
   { label: "游戏", to: "/game" },
-  { label: "贪吃蛇", to: "/game/snake" },
   { label: "顿悟", to: "/insights" },
   { label: "博客", to: "/blog" },
 ];
