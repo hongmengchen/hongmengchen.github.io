@@ -138,8 +138,8 @@ export function makeMove(
 }
 
 // ─── AI ─────────────────────────────────────────────────────────────────
+// Pure greedy heuristic — no tree search, instant moves.
 
-// Score patterns
 const SCORES = {
   FIVE: 1000000,
   OPEN_FOUR: 100000,
@@ -151,18 +151,19 @@ const SCORES = {
   ONE: 10,
 };
 
-function evaluateDirection(
+/** Count consecutive stones + open ends along one direction. */
+function analyzeDirection(
   board: Board,
   r: number,
   c: number,
   dr: number,
   dc: number,
   player: Player,
-): number {
+): { count: number; openEnds: number; gaps: number } {
   let count = 1;
   let openEnds = 0;
+  let gaps = 0;
 
-  // Forward
   let nr = r + dr;
   let nc = c + dc;
   while (inBounds(nr, nc) && board[nr][nc] === player) {
@@ -172,7 +173,6 @@ function evaluateDirection(
   }
   if (inBounds(nr, nc) && board[nr][nc] === 0) openEnds++;
 
-  // Backward
   nr = r - dr;
   nc = c - dc;
   while (inBounds(nr, nc) && board[nr][nc] === player) {
@@ -181,6 +181,19 @@ function evaluateDirection(
     nc -= dc;
   }
   if (inBounds(nr, nc) && board[nr][nc] === 0) openEnds++;
+
+  return { count, openEnds, gaps };
+}
+
+function directionScore(
+  board: Board,
+  r: number,
+  c: number,
+  dr: number,
+  dc: number,
+  player: Player,
+): number {
+  const { count, openEnds } = analyzeDirection(board, r, c, dr, dc, player);
 
   if (count >= 5) return SCORES.FIVE;
   if (count === 4) {
@@ -202,196 +215,125 @@ function evaluateDirection(
   return 0;
 }
 
-function evaluateCell(
-  board: Board,
-  r: number,
-  c: number,
-  player: Player,
-): number {
+function evaluateAttack(board: Board, r: number, c: number, player: Player): number {
+  // Sum scores from all 4 directions when placing player's stone here
+  const testBoard = board.map((row) => [...row]);
+  testBoard[r][c] = player;
   let score = 0;
   for (const [dr, dc] of DIRECTIONS) {
-    score += evaluateDirection(board, r, c, dr, dc, player);
+    score += directionScore(testBoard, r, c, dr, dc, player);
   }
   return score;
 }
 
-function evaluateBoard(
-  board: Board,
-  aiPlayer: Player,
-): number {
-  const opponent: Player = aiPlayer === 1 ? 2 : 1;
+function evaluateDefense(board: Board, r: number, c: number, opponent: Player): number {
+  // How dangerous would it be if opponent placed here?
+  const testBoard = board.map((row) => [...row]);
+  testBoard[r][c] = opponent;
   let score = 0;
-  for (let r = 0; r < BOARD_SIZE; r++) {
-    for (let c = 0; c < BOARD_SIZE; c++) {
-      if (board[r][c] === aiPlayer) {
-        score += evaluateCell(board, r, c, aiPlayer);
-      } else if (board[r][c] === opponent) {
-        score -= evaluateCell(board, r, c, opponent);
-      }
-    }
+  for (const [dr, dc] of DIRECTIONS) {
+    score += directionScore(testBoard, r, c, dr, dc, opponent);
   }
   return score;
+}
+
+/** Detect if a move creates two separate threats simultaneously (fork). */
+function forkBonus(board: Board, r: number, c: number, player: Player): number {
+  const testBoard = board.map((row) => [...row]);
+  testBoard[r][c] = player;
+  let threats = 0;
+  for (const [dr, dc] of DIRECTIONS) {
+    const { count, openEnds } = analyzeDirection(testBoard, r, c, dr, dc, player);
+    if ((count >= 3 && openEnds >= 1) || (count >= 4)) {
+      threats++;
+    }
+  }
+  if (threats >= 3) return SCORES.OPEN_FOUR; // double threat = almost guaranteed win
+  if (threats >= 2) return SCORES.OPEN_THREE;
+  return 0;
 }
 
 function getCandidates(board: Board): [number, number][] {
-  const candidates = new Set<string>();
-
+  const seen = new Set<string>();
   for (let r = 0; r < BOARD_SIZE; r++) {
     for (let c = 0; c < BOARD_SIZE; c++) {
       if (board[r][c] !== 0) {
-        // Add empty neighbors within distance 2
         for (let dr = -2; dr <= 2; dr++) {
           for (let dc = -2; dc <= 2; dc++) {
             if (dr === 0 && dc === 0) continue;
             const nr = r + dr;
             const nc = c + dc;
             if (inBounds(nr, nc) && board[nr][nc] === 0) {
-              candidates.add(`${nr},${nc}`);
+              seen.add(((nr << 8) | nc).toString());
             }
           }
         }
       }
     }
   }
-
-  return Array.from(candidates).map((s) => {
-    const [r, c] = s.split(",").map(Number);
-    return [r, c] as [number, number];
-  });
-}
-
-function minimax(
-  board: Board,
-  depth: number,
-  alpha: number,
-  beta: number,
-  isMaximizing: boolean,
-  aiPlayer: Player,
-): number {
-  if (depth === 0) {
-    return evaluateBoard(board, aiPlayer);
+  const result: [number, number][] = [];
+  for (const key of seen) {
+    const v = Number(key);
+    result.push([v >> 8, v & 0xff]);
   }
-
-  const opponent: Player = aiPlayer === 1 ? 2 : 1;
-  const currentPlayer = isMaximizing ? aiPlayer : opponent;
-  const candidates = getCandidates(board);
-
-  if (candidates.length === 0) return 0;
-
-  // Score candidates by quick eval for better ordering
-  const scored = candidates.map(([r, c]) => {
-    const testBoard = board.map((row) => [...row]);
-    testBoard[r][c] = currentPlayer;
-    const score = evaluateCell(testBoard, r, c, currentPlayer);
-    return { r, c, score };
-  });
-
-  // Check for immediate win/block
-  for (const { r, c } of scored) {
-    const testBoard = board.map((row) => [...row]);
-    testBoard[r][c] = aiPlayer;
-    if (getWinningCells(testBoard, r, c, aiPlayer)) {
-      return isMaximizing ? SCORES.FIVE : -SCORES.FIVE;
-    }
-    testBoard[r][c] = opponent;
-    if (getWinningCells(testBoard, r, c, opponent)) {
-      return isMaximizing ? -SCORES.FIVE : SCORES.FIVE;
-    }
-  }
-
-  // Sort candidates by score for better pruning
-  scored.sort((a, b) => isMaximizing ? b.score - a.score : a.score - b.score);
-
-  if (isMaximizing) {
-    let maxScore = -Infinity;
-    for (const { r, c } of scored.slice(0, 15)) {
-      const newBoard = board.map((row) => [...row]);
-      newBoard[r][c] = aiPlayer;
-      const score = minimax(newBoard, depth - 1, alpha, beta, false, aiPlayer);
-      maxScore = Math.max(maxScore, score);
-      alpha = Math.max(alpha, score);
-      if (beta <= alpha) break;
-    }
-    return maxScore;
-  } else {
-    let minScore = Infinity;
-    for (const { r, c } of scored.slice(0, 15)) {
-      const newBoard = board.map((row) => [...row]);
-      newBoard[r][c] = opponent;
-      const score = minimax(newBoard, depth - 1, alpha, beta, true, aiPlayer);
-      minScore = Math.min(minScore, score);
-      beta = Math.min(beta, score);
-      if (beta <= alpha) break;
-    }
-    return minScore;
-  }
+  return result;
 }
 
 export function getAIMove(state: GomokuState): [number, number] | null {
   const { board, currentPlayer } = state;
-  const candidates = getCandidates(board);
+  const opponent: Player = currentPlayer === 1 ? 2 : 1;
 
-  if (candidates.length === 0) return null;
-
-  // First move: play center
+  // First move: center
   if (state.moveCount === 0) {
-    const center = Math.floor(BOARD_SIZE / 2);
-    return [center, center];
+    return [Math.floor(BOARD_SIZE / 2), Math.floor(BOARD_SIZE / 2)];
   }
 
-  // Second move: play near center
+  // Second move: near center
   if (state.moveCount === 1) {
-    const center = Math.floor(BOARD_SIZE / 2);
-    const offsets = [[0, 1], [1, 0], [1, 1], [1, -1]];
+    const c = Math.floor(BOARD_SIZE / 2);
+    const offsets: [number, number][] = [[0, 1], [1, 0], [1, 1], [1, -1]];
     for (const [dr, dc] of offsets) {
-      const nr = center + dr;
-      const nc = center + dc;
+      const nr = c + dr, nc = c + dc;
       if (inBounds(nr, nc) && board[nr][nc] === 0) return [nr, nc];
     }
   }
 
-  const opponent: Player = currentPlayer === 1 ? 2 : 1;
+  const candidates = getCandidates(board);
+  if (candidates.length === 0) return null;
 
-  // Check for immediate win
+  // 1) Immediate win
   for (const [r, c] of candidates) {
     const testBoard = board.map((row) => [...row]);
     testBoard[r][c] = currentPlayer;
     if (getWinningCells(testBoard, r, c, currentPlayer)) return [r, c];
   }
 
-  // Check for immediate block
+  // 2) Immediate block
   for (const [r, c] of candidates) {
     const testBoard = board.map((row) => [...row]);
     testBoard[r][c] = opponent;
     if (getWinningCells(testBoard, r, c, opponent)) return [r, c];
   }
 
-  // Score each candidate and use minimax
-  const scored = candidates.map(([r, c]) => {
-    const testBoard = board.map((row) => [...row]);
-    testBoard[r][c] = currentPlayer;
-    const attackScore = evaluateCell(testBoard, r, c, currentPlayer);
-    testBoard[r][c] = opponent;
-    const defenseScore = evaluateCell(testBoard, r, c, opponent);
-    return { r, c, score: attackScore + defenseScore * 1.1 };
-  });
-
-  // Sort by combined score
-  scored.sort((a, b) => b.score - a.score);
-
-  // Try top candidates with minimax
-  const topCandidates = scored.slice(0, 10);
-  const depth = state.moveCount < 6 ? 2 : 1;
-
+  // 3) Score every candidate (pure greedy heuristic)
   let bestScore = -Infinity;
-  let bestMove = [topCandidates[0].r, topCandidates[0].c] as [number, number];
+  let bestMove = candidates[0];
 
-  for (const { r, c } of topCandidates) {
-    const newBoard = board.map((row) => [...row]);
-    newBoard[r][c] = currentPlayer;
-    const score = minimax(newBoard, depth, -Infinity, Infinity, false, currentPlayer);
-    if (score > bestScore) {
-      bestScore = score;
+  for (const [r, c] of candidates) {
+    const attack = evaluateAttack(board, r, c, currentPlayer);
+    const defense = evaluateDefense(board, r, c, opponent);
+    const fork = forkBonus(board, r, c, currentPlayer) * 1.5;
+    const total = attack + defense * 1.05 + fork;
+
+    if (total > bestScore) {
+      bestScore = total;
+      bestMove = [r, c];
+    }
+
+    // Tie-break: prefer center
+    const center = Math.floor(BOARD_SIZE / 2);
+    const dist = Math.abs(r - center) + Math.abs(c - center);
+    if (total === bestScore && dist < Math.abs(bestMove[0] - center) + Math.abs(bestMove[1] - center)) {
       bestMove = [r, c];
     }
   }

@@ -57,7 +57,7 @@ export default function GameGomoku() {
       !aiThinking
     ) {
       setAiThinking(true);
-      const delay = difficulty === "easy" ? 200 : difficulty === "medium" ? 300 : 500;
+      const delay = 80; // Tiny delay for visual feedback only (AI is instant)
       aiTimeoutRef.current = setTimeout(() => {
         const move = getAIMove(gameState);
         if (move) {
