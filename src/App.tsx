@@ -9,6 +9,7 @@ const GameHub = lazy(() => import("@/pages/game-hub"));
 const Game2048 = lazy(() => import("@/pages/game-2048"));
 const GameSnake = lazy(() => import("@/pages/game-snake"));
 const GameTicTacToe = lazy(() => import("@/pages/game-tictactoe"));
+const GameGomoku = lazy(() => import("@/pages/game-gomoku"));
 const BlogIndex = lazy(() => import("@/pages/blog-index"));
 const BlogPost = lazy(() => import("@/pages/blog-post"));
 const InsightIndex = lazy(() => import("@/pages/insight-index"));
@@ -42,6 +43,7 @@ function App() {
         { path: "/game/2048", element: withSuspense(<Game2048 />) },
         { path: "/game/snake", element: withSuspense(<GameSnake />) },
         { path: "/game/tictactoe", element: withSuspense(<GameTicTacToe />) },
+        { path: "/game/gomoku", element: withSuspense(<GameGomoku />) },
         { path: "/insights", element: withSuspense(<InsightIndex />) },
         { path: "/insights/:slug", element: withSuspense(<InsightPost />) },
         { path: "/blog", element: withSuspense(<BlogIndex />) },

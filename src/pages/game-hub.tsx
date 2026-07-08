@@ -1,6 +1,6 @@
 import { motion, type Variants } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Gamepad2, Swords, Combine } from "lucide-react";
+import { Gamepad2, Swords, Combine, Grid3x3 } from "lucide-react";
 
 const games = [
   {
@@ -38,6 +38,18 @@ const games = [
     icon: <Swords className="size-6" />,
     emoji: "✖️",
     gradient: "#8b5cf6",
+  },
+  {
+    id: "gomoku",
+    title: "五子棋",
+    subtitle: "五子连珠，智胜对手",
+    description: "经典五子棋，双人或挑战AI。在15x15棋盘上连成五子即获胜，深不见底的策略游戏。",
+    path: "/game/gomoku",
+    color: "from-rose-500 to-purple-600",
+    bgColor: "bg-rose-50 dark:bg-rose-950/30",
+    icon: <Grid3x3 className="size-6" />,
+    emoji: "⚫",
+    gradient: "#e11d48",
   },
 ];
 
@@ -107,7 +119,7 @@ export default function GameHub() {
         </motion.div>
 
         {/* Game cards */}
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {games.map((game) => (
             <motion.div
               key={game.id}

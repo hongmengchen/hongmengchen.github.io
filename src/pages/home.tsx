@@ -222,7 +222,7 @@ export default function Home() {
                 <CardDescription>闲暇时刻，放松一下</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid gap-3 sm:grid-cols-3">
+                <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
                   <motion.div
                     initial="rest"
                     whileHover="hover"
@@ -279,6 +279,26 @@ export default function Home() {
                         <div className="text-sm font-medium">井字棋</div>
                         <div className="text-xs text-muted-foreground">
                           三连一线，智取对手。支持双人和AI模式。
+                        </div>
+                      </div>
+                    </Link>
+                  </motion.div>
+                  <motion.div
+                    initial="rest"
+                    whileHover="hover"
+                    variants={cardHover}
+                  >
+                    <Link
+                      to="/game/gomoku"
+                      className="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/30 p-4 transition-colors hover:bg-muted/60"
+                    >
+                      <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-rose-500/10 text-lg font-bold text-rose-500">
+                        ⚫
+                      </span>
+                      <div className="text-left">
+                        <div className="text-sm font-medium">五子棋</div>
+                        <div className="text-xs text-muted-foreground">
+                          五子连珠，智胜对手。支持双人和AI模式。
                         </div>
                       </div>
                     </Link>
