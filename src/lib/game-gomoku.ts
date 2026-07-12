@@ -7,6 +7,12 @@ export type Player = 1 | 2; // 1 = black (first), 2 = white
 export type Cell = Player | 0;
 export type Board = Cell[][];
 
+export interface MoveRecord {
+  row: number;
+  col: number;
+  player: Player;
+}
+
 export interface GomokuState {
   board: Board;
   currentPlayer: Player;
@@ -14,6 +20,7 @@ export interface GomokuState {
   winningCells: [number, number][] | null;
   lastMove: [number, number] | null;
   moveCount: number;
+  moveHistory: MoveRecord[];
 }
 
 export function createInitialState(): GomokuState {
@@ -27,6 +34,7 @@ export function createInitialState(): GomokuState {
     winningCells: null,
     lastMove: null,
     moveCount: 0,
+    moveHistory: [],
   };
 }
 
@@ -105,6 +113,8 @@ export function makeMove(
   const winningCells = getWinningCells(newBoard, row, col, state.currentPlayer);
   const newMoveCount = state.moveCount + 1;
 
+  const moveRecord: MoveRecord = { row, col, player: state.currentPlayer };
+
   if (winningCells) {
     return {
       board: newBoard,
@@ -113,6 +123,7 @@ export function makeMove(
       winningCells,
       lastMove: [row, col],
       moveCount: newMoveCount,
+      moveHistory: [...state.moveHistory, moveRecord],
     };
   }
 
@@ -124,6 +135,7 @@ export function makeMove(
       winningCells: null,
       lastMove: [row, col],
       moveCount: newMoveCount,
+      moveHistory: [...state.moveHistory, moveRecord],
     };
   }
 
@@ -134,6 +146,33 @@ export function makeMove(
     winningCells: null,
     lastMove: [row, col],
     moveCount: newMoveCount,
+    moveHistory: [...state.moveHistory, moveRecord],
+  };
+}
+
+/**
+ * Undo the last move from history.
+ * Returns the state as it was before that move.
+ */
+export function undoMove(state: GomokuState): GomokuState | null {
+  if (state.moveHistory.length === 0) return null;
+
+  const newHistory = [...state.moveHistory];
+  const undone = newHistory.pop()!;
+
+  const newBoard = state.board.map((r) => [...r]);
+  newBoard[undone.row][undone.col] = 0;
+
+  const prevMove = newHistory.length > 0 ? newHistory[newHistory.length - 1] : null;
+
+  return {
+    board: newBoard,
+    currentPlayer: undone.player, // revert to the player who made that move
+    winner: null,
+    winningCells: null,
+    lastMove: prevMove ? [prevMove.row, prevMove.col] : null,
+    moveCount: state.moveCount - 1,
+    moveHistory: newHistory,
   };
 }
 

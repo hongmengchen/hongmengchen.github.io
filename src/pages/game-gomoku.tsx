@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   RotateCcw,
+  Undo2,
   Trophy,
   Users,
   Cpu,
@@ -16,6 +17,7 @@ import {
   BOARD_SIZE,
   createInitialState,
   makeMove,
+  undoMove,
   getAIMove,
 } from "@/lib/game-gomoku";
 
@@ -125,6 +127,29 @@ export default function GameGomoku() {
     setHoverPos(null);
   }, []);
 
+  function handleUndo() {
+    if (aiThinking || gameState.winner || gameState.moveHistory.length === 0) return;
+
+    if (gameMode === "pve") {
+      // In PvE, undo two moves: AI's move + player's last move
+      let next = undoMove(gameState);
+      if (next && next.moveHistory.length > 0) {
+        next = undoMove(next);
+      }
+      if (next) {
+        setGameState(next);
+        setHoverPos(null);
+      }
+    } else {
+      // In PvP, undo just one move
+      const next = undoMove(gameState);
+      if (next) {
+        setGameState(next);
+        setHoverPos(null);
+      }
+    }
+  }
+
   function resetGame() {
     if (aiTimeoutRef.current) clearTimeout(aiTimeoutRef.current);
     setGameState(createInitialState());
@@ -206,6 +231,18 @@ export default function GameGomoku() {
             >
               <RotateCcw className="size-3.5" />
               新一局
+            </button>
+            <button
+              onClick={handleUndo}
+              disabled={
+                gameState.moveHistory.length === 0 ||
+                !!gameState.winner ||
+                aiThinking
+              }
+              className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-gradient-to-b from-background to-muted/30 px-4 py-2 text-sm font-medium shadow-sm transition-all hover:bg-muted hover:shadow-md active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <Undo2 className="size-3.5" />
+              悔棋
             </button>
           </div>
 
